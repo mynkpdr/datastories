@@ -1,0 +1,2826 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Should We Intervene? — TDS Student Intelligence Brief</title>
+  <meta name="description" content="An intervention strategy brief for Tools in Data Science: who needs what kind of help, and how do we know?">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <style>
+    :root {
+      --bg: #070806;
+      --surface: #0d100f;
+      --card: #111716;
+      --border: rgba(232,223,209,.085);
+      --border-bright: rgba(232,223,209,.2);
+      --text: #e8dfd1;
+      --text-muted: #81776b;
+      --text-sub: #b7aea2;
+      --accent: #e8a020;
+      --accent-soft: rgba(232,160,32,.14);
+      --accent-glow: rgba(232,160,32,.06);
+      --good: #1db87f;
+      --good-soft: rgba(29,184,127,.14);
+      --bad: #e85050;
+      --bad-soft: rgba(232,80,80,.14);
+      --ga: #38bdf8;
+      --roe: #f87171;
+      --project: #c084fc;
+      --ee: #4ade80;
+      --c-silent: #fb923c;
+      --c-grinder: #38bdf8;
+      --c-helper: #a78bfa;
+      --c-sprinter: #fbbf24;
+      --c-roe: #f87171;
+      --radius: 10px;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+      --shadow: 0 18px 42px rgba(0,0,0,.32);
+      --max-w: 1220px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background:
+        linear-gradient(180deg, rgba(232,160,32,.018) 0, transparent 360px),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ---- Scrollbar ---- */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+
+    /* ---- Progress bar ---- */
+    #progress {
+      position: fixed; inset: 0 auto auto 0;
+      height: 2px; width: 0;
+      background: var(--accent);
+      z-index: 100;
+      transition: width .1s;
+    }
+
+    /* ---- Top nav ---- */
+    .topbar {
+      position: sticky; top: 0; z-index: 80;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7,9,11,.88);
+      backdrop-filter: blur(22px);
+      overflow: hidden;
+    }
+    .topbar-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      min-width: 0;
+    }
+    .brand {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+    .nav {
+      display: flex; gap: 4px;
+      overflow-x: auto; scrollbar-width: none;
+      margin-left: auto; padding: 6px 0;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a {
+      text-decoration: none;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 5px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .nav a:hover { color: var(--text); border-color: var(--border); }
+    .nav a.active { color: var(--accent); border-color: rgba(232,160,32,.3); background: var(--accent-soft); }
+
+    /* ---- Wrap ---- */
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ---- Hero ---- */
+    .hero {
+      padding: 120px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 900px 500px at 60% 30%, rgba(232,160,32,.04), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(52px, 8vw, 110px);
+      font-weight: 600;
+      line-height: .92;
+      letter-spacing: -.01em;
+      max-width: 900px;
+      margin-bottom: 32px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: color-mix(in srgb, var(--accent) 85%, var(--text));
+    }
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 56px;
+      align-items: start;
+    }
+    .hero-narrative {
+      font-size: clamp(17px, 1.9vw, 22px);
+      line-height: 1.6;
+      color: var(--text-sub);
+      max-width: 680px;
+    }
+    .hero-narrative p + p { margin-top: 18px; }
+    .hero-narrative strong { color: var(--text); font-weight: 600; }
+    .hero-stats-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+    .hero-stats-box .box-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-stat-row:last-child { border-bottom: 0; }
+    .hero-stat-label {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+    .hero-stat-val {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .hero-stat-val.accent { color: var(--accent); }
+    .hero-stat-val.good { color: var(--good); }
+    .hero-stat-val.bad { color: var(--bad); }
+
+    /* ---- Pull quote band ---- */
+    .quote-band {
+      background: linear-gradient(135deg, rgba(232,160,32,.07), rgba(232,160,32,.02));
+      border-top: 1px solid rgba(232,160,32,.18);
+      border-bottom: 1px solid rgba(232,160,32,.18);
+      padding: 52px 0;
+    }
+    .quote-band blockquote {
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 4vw, 58px);
+      font-weight: 500;
+      line-height: 1.1;
+      max-width: 1000px;
+      color: var(--text);
+    }
+    .quote-band blockquote em { color: var(--accent); font-style: italic; }
+    .quote-attr {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 16px;
+    }
+
+    /* ---- Sections ---- */
+    section {
+      padding: 100px 0;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: 62px;
+    }
+    .section-header {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 32px;
+      align-items: start;
+      margin-bottom: 48px;
+    }
+    .section-kicker {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding-top: 6px;
+    }
+    .section-h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 5vw, 70px);
+      font-weight: 600;
+      line-height: .95;
+      margin-bottom: 20px;
+    }
+    .section-narrative {
+      font-size: clamp(15px, 1.5vw, 18px);
+      color: var(--text-sub);
+      line-height: 1.75;
+      max-width: 820px;
+    }
+    .section-narrative p + p { margin-top: 14px; }
+    .section-narrative strong { color: var(--text); }
+
+    /* ---- Key metrics strip ---- */
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .metric-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .metric-box .num {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 3.5vw, 48px);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric-box .lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .metric-box.accent .num { color: var(--accent); }
+    .metric-box.good .num { color: var(--good); }
+    .metric-box.bad .num { color: var(--bad); }
+    .metric-box.ga .num { color: var(--ga); }
+    .metric-box.roe .num { color: var(--roe); }
+
+    /* ---- Panel / Card ---- */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .panel-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .panel-sub-spaced { margin-bottom: 22px; }
+    .grid-1 { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; align-items: start; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+    .mt16 { margin-top: 16px; }
+    .mt32 { margin-top: 32px; }
+    .mb16 { margin-bottom: 16px; }
+    .align-right { text-align: right; }
+    .chart-sm { min-height: 220px; }
+    .chart-md { min-height: 300px; }
+    .chart-lg { min-height: 340px; }
+
+    /* ---- Archetype / Intervention Cards ---- */
+    .archetype-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .arch-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s, transform .2s;
+    }
+    .arch-card:hover { transform: translateY(-2px); border-color: var(--border-bright); }
+    .arch-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--cohort-color, var(--accent));
+    }
+    .arch-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .arch-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--cohort-color, var(--accent));
+      background: color-mix(in srgb, var(--cohort-color, var(--accent)) 12%, transparent);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .arch-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .arch-name {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .arch-desc {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+    .arch-stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 18px;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .arch-stat { flex: 1; }
+    .arch-stat .val {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--cohort-color, var(--accent));
+      line-height: 1;
+    }
+    .arch-stat .lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+    .arch-intervention {
+      background: color-mix(in srgb, var(--cohort-color, var(--accent)) 7%, var(--surface));
+      border: 1px solid color-mix(in srgb, var(--cohort-color, var(--accent)) 20%, transparent);
+      border-radius: 7px;
+      padding: 14px;
+    }
+    .arch-intervention .int-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--cohort-color, var(--accent));
+      margin-bottom: 7px;
+    }
+    .arch-intervention .int-text {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-sub);
+    }
+    .arch-intervention .int-text strong { color: var(--text); }
+    .score-bar {
+      height: 5px;
+      background: rgba(255,255,255,.07);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--cohort-color, var(--accent));
+      transition: width .8s ease;
+    }
+
+    /* ---- SVG / Chart styles ---- */
+    .viz { width: 100%; position: relative; }
+    .viz svg { display: block; width: 100%; overflow: visible; }
+    .axis path, .axis line { stroke: var(--border-bright); }
+    .axis text { fill: var(--text-muted); font-family: var(--font-mono); font-size: 10px; }
+    .grid-line { stroke: var(--border); stroke-dasharray: 3,4; }
+    .chart-label { fill: var(--text-muted); font-family: var(--font-mono); font-size: 10px; }
+
+    /* ---- Bar rows ---- */
+    .bar-rows { display: flex; flex-direction: column; gap: 0; }
+    .brow {
+      display: grid;
+      grid-template-columns: 180px 1fr 60px;
+      gap: 12px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .brow:last-child { border-bottom: 0; }
+    .brow-name {
+      font-size: 13px;
+      color: var(--text-sub);
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .brow-track {
+      height: 24px;
+      background: rgba(255,255,255,.04);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .brow-fill {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(0,0,0,.65);
+      min-width: 3px;
+      transition: width .7s cubic-bezier(.2,.8,.2,1);
+    }
+    .brow-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* ---- Tooltip ---- */
+    .tip {
+      position: fixed; z-index: 200;
+      pointer-events: none;
+      max-width: 320px;
+      background:
+        linear-gradient(135deg, rgba(232,160,32,.09), transparent 42%),
+        rgba(13,16,15,.97);
+      border: 1px solid rgba(232,223,209,.2);
+      border-radius: 8px;
+      padding: 11px 13px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 14px 36px rgba(0,0,0,.62), 0 0 0 1px rgba(255,255,255,.035) inset;
+      opacity: 0;
+      transform: translate3d(0,4px,0) scale(.98);
+      transition: opacity .06s linear, transform .06s ease-out;
+      will-change: left, top, opacity, transform;
+    }
+    .tip.vis { opacity: 1; transform: translate3d(0,0,0) scale(1); }
+    .tip-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      color: var(--accent);
+    }
+    .tip-body { color: var(--text-sub); }
+    .tip-body strong { color: var(--text); font-weight: 600; }
+    [data-tip-title] { cursor: default; }
+
+    /* ---- Recommendation cards ---- */
+    .rec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .rec-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .rec-owner {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .rec-title {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .priority-bar {
+      height: 4px;
+      background: rgba(255,255,255,.07);
+      border-radius: 2px;
+      margin-bottom: 14px;
+    }
+    .priority-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    .rec-evidence {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .rec-action {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    /* ---- Reveal on scroll ---- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.vis { opacity: 1; transform: translateY(0); }
+
+    /* ---- Footer ---- */
+    footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-note {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ---- Chips filter ---- */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 11px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .chip:hover { color: var(--text); border-color: var(--border-bright); }
+    .chip.active { color: var(--accent); border-color: rgba(232,160,32,.35); background: var(--accent-soft); }
+
+    /* ---- Table ---- */
+    .table-wrap { overflow: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); background: rgba(255,255,255,.03); padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-sub); }
+    tr:last-child td { border-bottom: 0; }
+    tr:hover td { background: rgba(255,255,255,.025); }
+
+    .flag-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      line-height: 1.15;
+    }
+    .flag-title.bad-flag { color: var(--bad); }
+    .flag-title.warn-flag { color: var(--accent); }
+    .flag-title.info-flag { color: var(--ga); }
+    .flag-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
+      flex: 0 0 auto;
+    }
+
+    /* ---- Timing chapter ---- */
+    .timing-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .timing-bars {
+      display: grid;
+      gap: 14px;
+    }
+    .timing-impact-row {
+      display: grid;
+      grid-template-columns: 132px 1fr 58px 1fr 58px;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .timing-impact-row:last-child { border-bottom: 0; }
+    .timing-impact-head {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .timing-bucket {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+    .timing-track {
+      height: 28px;
+      border-radius: 5px;
+      background: rgba(255,255,255,.045);
+      overflow: hidden;
+      position: relative;
+    }
+    .timing-fill {
+      height: 100%;
+      min-width: 2px;
+      border-radius: 5px;
+      background: var(--accent);
+      opacity: .9;
+    }
+    .timing-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text);
+      text-align: right;
+    }
+    .rhythm-card {
+      padding-top: 2px;
+    }
+    .rhythm-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .rhythm-name {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .rhythm-total {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+    .hour-bars {
+      height: 132px;
+      display: grid;
+      grid-template-columns: repeat(24, minmax(0, 1fr));
+      align-items: end;
+      gap: 3px;
+      padding-top: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hour-bar {
+      min-height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--accent);
+      opacity: .85;
+    }
+    .hour-axis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .hour-axis span:nth-child(2),
+    .hour-axis span:nth-child(3) { text-align: center; }
+    .hour-axis span:last-child { text-align: right; }
+    .day-strip {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 18px;
+    }
+    .day-cell {
+      min-height: 58px;
+      padding: 9px 8px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: rgba(255,255,255,.025);
+      min-width: 0;
+    }
+    .day-cell .day {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .day-cell .val {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      line-height: 1;
+      margin-top: 6px;
+      color: var(--text);
+    }
+    .reply-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .reply-metric {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255,255,255,.025);
+    }
+    .reply-metric .num {
+      font-family: var(--font-serif);
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .reply-metric .lbl {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.45;
+    }
+    .timing-note-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .timing-note {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .timing-note .num {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      line-height: 1;
+      color: var(--ga);
+    }
+    .timing-note .txt {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+    .heatmap-grid {
+      align-items: stretch;
+    }
+    .heatmap-panel {
+      min-width: 0;
+    }
+    .heatmap-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .heatmap-pill {
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: rgba(255,255,255,.025);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.25;
+    }
+    .heatmap-pill strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .heatmap {
+      min-width: 0;
+    }
+    .heatmap-axis,
+    .heatmap-row {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .heatmap-axis {
+      margin-bottom: 5px;
+    }
+    .heatmap-hour-cells,
+    .heatmap-cells {
+      display: grid;
+      grid-template-columns: repeat(24, minmax(0, 1fr));
+      gap: 2px;
+    }
+    .heatmap-hour {
+      height: 14px;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      line-height: 14px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .heatmap-day-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .heatmap-row + .heatmap-row {
+      margin-top: 4px;
+    }
+    .heat-cell {
+      height: 17px;
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 3px;
+      background: rgba(255,255,255,.04);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.015);
+      transition: border-color .15s, transform .15s, filter .15s;
+    }
+    .heat-cell:hover {
+      border-color: rgba(255,255,255,.28);
+      filter: saturate(1.2);
+      transform: translateY(-1px);
+    }
+    .heat-cell.peak {
+      border-color: rgba(232,223,209,.72);
+      box-shadow: 0 0 0 1px rgba(232,223,209,.24), 0 0 18px rgba(232,160,32,.2);
+    }
+    .heatmap-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-top: 13px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .heatmap-swatch {
+      width: 18px;
+      height: 9px;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 2px;
+      flex: 0 0 auto;
+    }
+    .team-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .team-term-list,
+    .team-kind-list {
+      display: grid;
+      gap: 12px;
+    }
+    .team-term-row,
+    .team-kind-row {
+      display: grid;
+      grid-template-columns: 92px 1fr 84px;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .team-term-row:last-child,
+    .team-kind-row:last-child { border-bottom: 0; }
+    .team-row-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-sub);
+    }
+    .team-row-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .team-bar {
+      height: 30px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.035);
+      overflow: hidden;
+      position: relative;
+    }
+    .team-fill {
+      height: 100%;
+      min-width: 2px;
+      background: linear-gradient(90deg, var(--good), var(--accent));
+      opacity: .86;
+    }
+    .team-row-value {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      line-height: 1;
+      text-align: right;
+      color: var(--text);
+    }
+    .team-row-value span {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .team-member-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-top: 32px;
+    }
+    .team-member-title {
+      font-family: var(--font-serif);
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1.05;
+    }
+    .team-member-sub {
+      max-width: 640px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      text-align: right;
+    }
+    .team-member-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .team-member-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.014));
+      padding: 18px;
+      min-height: 238px;
+      box-shadow: var(--shadow);
+    }
+    .team-member-card.featured {
+      border-color: rgba(232,160,32,.34);
+      background:
+        linear-gradient(135deg, rgba(232,160,32,.08), transparent 42%),
+        linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.014));
+    }
+    .team-member-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+    .team-member-name {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 600;
+    }
+    .team-member-user {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    .role-badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text);
+      border: 1px solid var(--border-bright);
+      border-radius: 5px;
+      padding: 4px 6px;
+      background: rgba(255,255,255,.04);
+      white-space: nowrap;
+    }
+    .team-member-num {
+      font-family: var(--font-serif);
+      font-size: 40px;
+      line-height: .9;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .team-member-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .team-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .team-mini .val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text);
+    }
+    .team-mini .lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+    .term-chips {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .term-chip {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 5px;
+      background: rgba(255,255,255,.025);
+    }
+    .team-performance-note {
+      margin-top: 12px;
+      padding-top: 11px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--text-sub);
+    }
+    .team-performance-note strong {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .team-note-num {
+      font-family: var(--font-serif);
+      font-size: 42px;
+      line-height: .95;
+      color: var(--ga);
+      margin-bottom: 10px;
+    }
+    .team-note-num.is-accent { color: var(--accent); }
+    .team-note-num.is-project { color: var(--project); }
+    .team-member-note { margin-top: 10px; }
+
+    /* ---- Extracted presentational helpers ---- */
+    .feature-stat {
+      font-family: var(--font-serif);
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1;
+      margin: 10px 0;
+    }
+    .feature-stat.is-bad { color: var(--bad); }
+    .feature-stat.is-accent { color: var(--accent); }
+    .feature-stat.is-ga { color: var(--ga); }
+    .feature-stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .method-section { padding-bottom: 60px; }
+    .method-list {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.8;
+      padding-left: 18px;
+      margin-top: 12px;
+    }
+    .table-cell-muted { color: var(--text-muted); }
+    .table-cell-mono { font-family: var(--font-mono); }
+    .thread-gap-row { grid-template-columns: 160px 1fr 1fr 60px; }
+    .thread-gap-cell { padding: 0 4px; }
+    .thread-gap-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .thread-gap-label.is-poster { color: var(--c-helper); }
+    .thread-gap-delta { color: var(--good); }
+    .thread-gap-poster-fill { background: var(--c-helper); }
+    .thread-gap-muted-fill { background: rgba(255,255,255,.2); }
+    .timing-fill.is-ga { background: var(--ga); }
+    .timing-fill.is-project { background: var(--project); }
+    .deadline-bar-group + .deadline-bar-group { margin-top: 16px; }
+    .deadline-bar-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .deadline-stack {
+      display: flex;
+      height: 36px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .deadline-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      opacity: .85;
+    }
+    .deadline-segment-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(0,0,0,.7);
+      white-space: nowrap;
+    }
+    .deadline-legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .deadline-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .deadline-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex: 0 0 auto;
+    }
+    .team-fill.is-mixed { background: linear-gradient(90deg, var(--ga), var(--project)); }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 900px) {
+      .hero-layout, .section-header, .grid-2, .grid-3, .timing-board, .team-board, .team-member-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 54px; }
+      .metric-strip { grid-template-columns: repeat(2, 1fr); }
+      .heat-cell { height: 15px; }
+      .team-member-head { display: block; }
+      .team-member-sub { text-align: left; margin-top: 8px; }
+    }
+    @media (max-width: 600px) {
+      .wrap { padding: 0 16px; }
+      .topbar-inner { padding: 0 16px; gap: 12px; }
+      .brand { max-width: 44vw; }
+      section { padding: 72px 0; }
+      .hero { padding: 90px 0 60px; }
+      .metric-strip { grid-template-columns: 1fr; }
+      .brow { grid-template-columns: 1fr; gap: 6px; }
+      .archetype-cards { grid-template-columns: 1fr; }
+      .rec-grid { grid-template-columns: 1fr; }
+      .reply-grid { grid-template-columns: 1fr; }
+      .day-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+      .day-cell { min-height: 52px; padding: 7px 4px; }
+      .day-cell .val { font-size: 18px; }
+      .timing-impact-row { grid-template-columns: 78px 1fr 42px 1fr 42px; gap: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">TDS · Intervention Brief · Jan 2025–May 2026</div>
+    <nav class="nav" aria-label="Report sections">
+      <a href="#overview">Overview</a>
+      <a href="#archetypes">Intervention Map</a>
+      <a href="#assessment">Assessment</a>
+      <a href="#forum">Forum</a>
+      <a href="#team">Course Team</a>
+      <a href="#timing">Timing</a>
+      <a href="#earlywarning">Early Warning</a>
+      <a href="#actions">Actions</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ======================== HERO ======================== -->
+  <section class="hero" id="hero">
+    <div class="wrap">
+      <div class="hero-eyebrow">TDS Student Intelligence Brief · Jan 2025 – May 2026</div>
+      <h1>How should<br>we <em>intervene?</em></h1>
+      <div class="hero-layout reveal">
+        <div class="hero-narrative">
+          <p>Across four terms and <strong>4,466 known students</strong>, Tools in Data Science has generated one of the richest behavioral datasets in IITM's online program. Students leave traces everywhere — how many times they save an answer, whether they ever post a question, whether they collapse under a timed exam or flourish across weeks of iteration.</p>
+          <p>Those traces tell us something important: <strong>students do not all need the same kind of help.</strong> Some are silent and struggling — they never ask for help and barely attempt assessments. Some are working incredibly hard but have never learned to manage time-boxed pressure. Some are already brilliant community builders who could become the program's most valuable resource.</p>
+          <p>This brief answers the question Anand posed: <strong>What are the 5–10 intervention strategies, and which students belong to each?</strong> Every section is grounded in observed behavior across 276,562 submissions and 11,868 forum posts, not assumptions.</p>
+        </div>
+        <div class="hero-stats-box">
+          <div class="box-title">At-a-glance · Jan 2025 – May 2026</div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Known students tracked</span>
+            <span class="hero-stat-val accent">4,466</span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Total submissions</span>
+            <span class="hero-stat-val">276,562</span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Forum posts</span>
+            <span class="hero-stat-val">11,868</span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Students who never posted</span>
+            <span class="hero-stat-val bad">2,915</span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Median reply time on forum</span>
+            <span class="hero-stat-val good">1.4 hrs</span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Staff share of forum posts</span>
+            <span class="hero-stat-val">20.9%</span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Avg GA score gain (first→last)</span>
+            <span class="hero-stat-val good">+42 pts</span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-label">Jan 2026 ROE avg score</span>
+            <span class="hero-stat-val bad">13.1%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PULL QUOTE ======================== -->
+  <div class="quote-band">
+    <div class="wrap">
+      <blockquote class="reveal">
+        "There are those that are very silent on scores but are totally cracking exams. There are those totally cracking it and very active — we should leverage them as <em>community builders.</em>"
+      </blockquote>
+      <p class="quote-attr reveal">— Anand S, Faculty · May 2026</p>
+    </div>
+  </div>
+
+  <!-- ======================== OVERVIEW ======================== -->
+  <section id="overview">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 00 · Overview</div>
+        <div>
+          <h2 class="section-h2">The classroom in numbers.</h2>
+          <div class="section-narrative">
+            <p>Before we can intervene, we need to see who is actually in the room. The numbers below are not abstract — they represent 4,466 individual learning journeys, most of them undocumented, many of them struggling silently. The headline finding is that <strong>65% of students never posted a single forum message</strong>, even though the forum had a median first reply time of just 84 minutes. Silence is not just a proxy for disengagement; it's a measurable risk factor, with silent students averaging 12 fewer percentage points on their final scores than active forum participants.</p>
+          </div>
+        </div>
+      </div>
+      <div class="metric-strip reveal" id="metric-strip"></div>
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Assessment gain: first save → last save</div>
+          <div class="panel-sub">When students can iterate over days or weeks, they improve dramatically. The ROE's 45-minute window compresses this loop — and the scores show it. Students who submit GAs multiple times average a 42-point improvement. ROE improvement is just 13 points — under time pressure, iteration barely helps. This shows the importance of providing students with adequate time to iterate and improve their work.</div>
+          <div class="viz chart-sm" id="gain-chart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Forum engagement vs average score</div>
+          <div class="panel-sub">Three engagement cohorts emerge naturally from the data. Students who post actively (10+ times) score 18.6 points higher on average than students who never post. This is a striking correlation — though not necessarily causation. Active engagement may signal deeper motivation that also drives higher scores. Either way, silence is a signal worth acting on.</div>
+          <div class="viz chart-sm" id="forum-cohort-chart"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== INTERVENTION MAP ======================== -->
+  <section id="archetypes">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 01 · The Intervention Map</div>
+        <div>
+          <h2 class="section-h2">Five profiles.<br>Five strategies.</h2>
+          <div class="section-narrative">
+            <p>Every student in TDS can be placed into one of five behavioral profiles based on observable signals: forum activity, attempt count, latest score, and ROE performance. These are not character judgments — they are <strong>operational labels that map directly to intervention types</strong>. A student in the "Silent Risk" profile needs a completely different kind of support than an "ROE Struggler," even if both have similar final grades.</p>
+            <p>These profiles cover the vast majority of the 4,466 known students. Some students will span multiple profiles — the data surfaces the dominant pattern. Importantly, the <strong>"Forum Helper" cohort (178 students) is an asset, not just a beneficiary</strong> — this group should be actively recruited as Learning Assistants and community builders, as Anand suggested.</p>
+            <p>Together, these five profiles suggest 5 primary intervention strategies, with 2–3 additional sub-strategies for edge cases discussed in the Actions section. None of these require new infrastructure — they require <strong>knowing who is who, and reaching them before silence becomes failure</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bubble scatter of all archetypes -->
+      <div class="panel reveal">
+        <div class="panel-title">All five archetypes: engagement vs performance</div>
+        <div class="panel-sub">Each bubble represents one student archetype. Horizontal axis = average forum posts (log scale). Vertical axis = average latest quiz score. Bubble size = number of students in that profile. Colors match the intervention cards below. The chart shows clearly that forum engagement and score are correlated — but the stories behind each bubble are very different.</div>
+        <div class="viz chart-lg" id="archetype-bubble"></div>
+      </div>
+
+      <div class="archetype-cards reveal mt32" id="archetype-cards"></div>
+    </div>
+  </section>
+
+  <!-- ======================== ASSESSMENT BEHAVIOR ======================== -->
+  <section id="assessment">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 02 · Assessment Behavior</div>
+        <div>
+          <h2 class="section-h2">The course works — except under time pressure.</h2>
+          <div class="section-narrative">
+            <p>TDS's open-save model is genuinely powerful. Students who make 10 or more GA attempts average an 83% final score — 26 points higher than those who submit only once. Projects show a similar pattern. This is not gaming the system; it is learning through feedback, which is exactly what the course intends. The average student saves a GA first answer at 32% and improves it to 74% — a 42-point gain through iteration alone.</p>
+            <p>The <strong>Remote Online Exam breaks this pattern entirely</strong>. With only 45 minutes to work, the median first-to-last save span collapses from hours (for GAs) to minutes. Across all terms, GA scores average 73–77%. ROE scores have been falling: 56% in Jan 2025, then 29%, 44%, and an alarming <strong>13% in Jan 2026</strong>. The ROE gap in Jan 2026 was 63.5 percentage points between GA performance and ROE performance — the widest it has ever been.</p>
+            <p>This tells us two things about intervention. First, the course's feedback loop works and should be preserved. Second, <strong>students need dedicated ROE preparation</strong> — timed drills, environment setup practice, and a mindset shift from the iterative GA workflow to time-boxed sprint execution.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="roe-metrics"></div>
+
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Score by attempt count — GAs</div>
+          <div class="panel-sub">Students who attempt GAs more times achieve dramatically higher scores. The gap between one attempt (57%) and ten-plus attempts (83%) is 26 points. Iteration is not cheating — it is the intended learning mechanism.</div>
+          <div id="attempt-bars" class="viz chart-sm"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">GA vs ROE gap by term</div>
+          <div class="panel-sub">The gap between GA scores and ROE scores has widened every term. In Jan 2026, students averaging 77% on GAs scored just 13% on the ROE — a 63.5 point gap. This suggests the ROE is testing a fundamentally different skill that is not being practiced.</div>
+          <div id="roe-gap-chart" class="viz chart-sm"></div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">Quiz performance timeline — all terms</div>
+        <div class="panel-sub">Each dot is one quiz, positioned by when it ran and its average latest score. The sharp downward spikes are ROE events — consistently the lowest-scoring assessments in every term. GA scores (blue) trend upward term-over-term as students improve and questions are refined. The gap between the tops and bottoms of each term reveals how polarized assessment performance has become.</div>
+        <div id="quiz-timeline" class="viz chart-md"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== FORUM ======================== -->
+  <section id="forum">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 03 · Forum Signals</div>
+        <div>
+          <h2 class="section-h2">The forum is fast, concentrated, and predictive.</h2>
+          <div class="section-narrative">
+            <p>With 11,868 posts, 848 topics, and 1,595 participants across all terms, TDS Discourse is an unusually active course forum. The median first reply comes in just <strong>84 minutes</strong> — one of the fastest response times in any IITM course. Staff account for 20.9% of posts, meaning roughly 4 of every 5 posts are student-to-student conversation. This is a genuine peer learning network, not just a help desk.</p>
+            <p>But activity is highly concentrated. <strong>The top 16 discussion threads account for 49% of all posts.</strong> This concentration has a practical implication: staffing those key threads well — pinning canonical answers, assigning TAs to monitor high-traffic topics — could improve the experience for the majority of engaged students without creating new infrastructure.</p>
+            <p>More importantly: the 2,915 students who never posted are not necessarily disengaged — some may be lurkers who read but don't write. However, behavioral data shows that <strong>students who post in a quiz's official thread score 23–30 points higher</strong> on that quiz than students who don't. This is not a small effect. The practical question is: how do we draw silent students into the conversation before they fall behind?</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-1 reveal">
+        <div class="panel mb16">
+          <div class="panel-title">Monthly forum activity</div>
+          <div class="panel-sub">Post volume tracks the academic calendar closely — spikes align with GA and Project deadlines. Activity drops sharply in the months between terms (Aug 2025, Jan 2026), which are opportunities to reach out to incoming students before the pressure begins.</div>
+          <div id="forum-line" class="viz chart-sm"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Highest-traffic discussion threads</div>
+          <div class="panel-sub">Project threads dominate. The top 5 threads alone account for 3,213 posts. GA2 (Deployment Tools) consistently generates the highest per-student forum traffic and shows the largest score gap between posters and non-posters — suggesting it's the course's hardest operational bottleneck.</div>
+          <div id="top-threads-chart"></div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">Score gap: students who posted in quiz threads vs. those who didn't</div>
+        <div class="panel-sub">For each quiz that had an official discussion thread, we can compare scores between students who posted at least once vs. those who didn't. The gap is consistent across all quizzes — students who engage with the thread score measurably higher. This is the single most actionable finding in the forum data: getting silent students to participate in discussion threads could meaningfully improve their outcomes.</div>
+        <div id="thread-gap-bars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== COURSE TEAM ======================== -->
+  <section id="team">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 04 · Course Team</div>
+        <div>
+          <h2 class="section-h2">The human layer behind the forum.</h2>
+          <div class="section-narrative">
+            <p>The forum is not just a peer network. It is held together by a small human support layer: faculty, instructors, TAs, and Learning Assistants who turn scattered questions into a functioning classroom. Across the four main terms, this group produced <strong>2,728 support posts</strong> — 23% of all term-tagged Discourse activity analyzed here.</p>
+            <p>The average first course-team reply to a student-started topic is <strong>28.0 hours</strong>, but the median is only <strong>4.1 hours</strong>. That gap matters: most questions receive fast attention, while a long tail of unresolved or slow-moving topics pulls the average upward. Direct replies are even faster, with a <strong>1.9-hour median</strong>.</p>
+            <p>Jan 2026 is the strongest term operationally: coverage rises to 73.9% of student-started topics and the median first course-team reply drops to 2.7 hours.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="team-metrics"></div>
+
+      <div class="team-board reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Term-by-term support health</div>
+          <div class="panel-sub">Each row shows student-started topics that received at least one course-support reply. Jan 2026 is the best operating model: higher coverage, faster median response, and a larger share of team posts.</div>
+          <div class="team-term-list" id="team-term-chart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Where support is stretched</div>
+          <div class="panel-sub">Project threads are the pressure point. They are high-stakes, long-running, and often need specific debugging, so coverage falls compared with GA and operational threads.</div>
+          <div class="team-kind-list" id="team-kind-bars"></div>
+        </div>
+      </div>
+
+      <div class="team-member-head reveal">
+        <div class="team-member-title">Who carried the replies?</div>
+        <div class="team-member-sub">Human course-support activity is concentrated in a small bench. Mayank's Sep 2025 Learning Assistant/repeat-student participation is counted explicitly, and his Jan 2026 activity is counted as TA work.</div>
+      </div>
+      <div class="team-member-grid reveal" id="team-member-cards"></div>
+
+      <div class="grid-3 reveal mt16">
+        <div class="panel">
+          <div class="team-note-num">79.1%</div>
+          <div class="panel-title">Overall: good, improving, uneven</div>
+          <div class="panel-sub">The team is doing well overall. Most covered questions get attention within a day, direct replies are fast, and Jan 2026 is clearly stronger. The remaining gap is coverage consistency, especially in project threads.</div>
+        </div>
+        <div class="panel">
+          <div class="team-note-num is-accent">145</div>
+          <div class="panel-title">Mayank's Sep 2025 bridge role</div>
+          <div class="panel-sub">Mayank posted 145 times in Sep 2025 as a Learning Assistant/repeat student, then 186 times as a Jan 2026 TA. That bridge is exactly the alumni-helper pipeline the course should formalize.</div>
+        </div>
+        <div class="panel">
+          <div class="team-note-num is-project">51.9%</div>
+          <div class="panel-title">Project 1 needs explicit ownership</div>
+          <div class="panel-sub">Project 1 has the weakest course-team coverage among major topic types. Assigning a named owner to high-traffic project threads is the clearest operational fix.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== TIMING ======================== -->
+  <section id="timing">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 05 · Timing</div>
+        <div>
+          <h2 class="section-h2">When students work.<br>When students ask.</h2>
+          <div class="section-narrative">
+            <p>The timing data turns the intervention question into an operations question. Students do not simply submit late; they cluster work into a few intense weekend and night windows, with a separate ROE spike around 13:00 IST because the exam runs in a roughly 45-minute window. The forum follows the same rhythm, which means support, pinned answers, and validator reliability matter most at predictable moments.</p>
+            <p>The strongest timing signal is the final-save gap: <strong>GA students who finish 3+ days early average 85.7%, while last-6-hour finishers average 70.7%</strong>. Projects show the same pattern. This does not prove early saving causes success, but it does show where a small behavioral nudge could move outcomes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="timing-metrics"></div>
+
+      <div class="timing-board reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Final-save timing vs score</div>
+          <div class="panel-sub">Latest known-student submissions are grouped by how far they landed from the deadline. The pattern is unusually clean and clear: early final saves are associated with much stronger scores, while after-deadline and final-hours saves are the weakest outcomes.</div>
+          <div id="timing-impact"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Reply health and support coverage</div>
+          <div class="panel-sub">The forum is fast, but it is not purely staff-driven. Half of first replies come from staff; the rest come from students. That makes Forum Helpers an operational asset, especially during weekend pressure windows.</div>
+          <div class="reply-grid" id="reply-metrics"></div>
+          <div class="timing-note-list" id="timing-notes"></div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Submission rhythm by hour and day</div>
+          <div class="panel-sub">Known submissions are concentrated in late-day IST hours and heavily on Sundays. This is the clearest evidence that deadline load is operationally predictable.</div>
+          <div id="submission-rhythm"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Forum rhythm by hour and day</div>
+          <div class="panel-sub">Forum demand is less spiky than submissions, but it still follows the same weekend pressure cycle. Students ask for help exactly when many are also submitting.</div>
+          <div id="forum-rhythm"></div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal mt16 heatmap-grid">
+        <div class="panel heatmap-panel">
+          <div class="panel-title">Submission pressure heatmap</div>
+          <div class="panel-sub">The full day-by-hour matrix separates two patterns: the sharp Sunday 13:00 IST spike is ROE's roughly 45-minute exam window, while late evening and weekend cells show ordinary deadline pressure.</div>
+          <div id="submission-heatmap"></div>
+        </div>
+        <div class="panel heatmap-panel">
+          <div class="panel-title">Forum demand heatmap</div>
+          <div class="panel-sub">Forum posts rise in the same weekend window as submissions. The 13:00 IST peak also reflects ROE activity, so TA coverage should account for both exam-window bursts and late-deadline help.</div>
+          <div id="forum-heatmap"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== EARLY WARNING ======================== -->
+  <section id="earlywarning">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 06 · Early Warning</div>
+        <div>
+          <h2 class="section-h2">Silence in week one<br>predicts failure by week twelve.</h2>
+          <div class="section-narrative">
+            <p>The most urgent insight in this dataset is that at-risk students can be <strong>identified early — not retrospectively</strong>. Three signals, visible within the first two weeks of a term, strongly predict who will end up in the "Silent Risk" category by the end: no forum posts, fewer than 3 submissions on GA1, and a GA1 score below 40%.</p>
+            <p>Students meeting all three criteria in week one are nearly certain to underperform the entire term. The 848 students currently labeled "Silent Risk" averaged just 30.3% overall — compared to 73% for actively engaged students. Yet as Anand noted, the intervention needs to happen <strong>at the start, not at the end</strong>. By the time we notice these students are missing, the term is already half over.</p>
+            <p>The recommendation is to build a simple weekly flag system: any student who has zero forum activity AND fewer than 3 saves on their first GA receives an automated nudge in week 2. Triggered early enough, this flag costs almost nothing. Triggered after week 6, it's largely too late to shift outcomes. The goal is not to identify who failed — it's to <strong>find who is about to fail, while there's still time to help</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3 reveal">
+        <div class="panel">
+          <div class="panel-title flag-title bad-flag"><span class="flag-dot"></span>Flag: No GA1 save</div>
+          <div class="panel-sub">Students with zero GA1 submissions are at extreme risk. In the current dataset, students who never submitted GA1 attempted an average of only 2.1 total quizzes across the entire term. This is a strong indicator of disengagement and potential failure.</div>
+          <div class="feature-stat is-bad">~340</div>
+          <div class="feature-stat-label">Estimated students per term who never save GA1</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title flag-title warn-flag"><span class="flag-dot"></span>Flag: Below 40% on GA1</div>
+          <div class="panel-sub">GA1 is designed as a pre-requisites check. A score below 40% strongly signals a student does not yet have the foundational skills for this course. Anand's original proposal for stronger entrance filtering is validated here.</div>
+          <div class="feature-stat is-accent">26%</div>
+          <div class="feature-stat-label">Of tracked GA1 takers scored below 40% on their final attempt</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title flag-title info-flag"><span class="flag-dot"></span>Monitor: Zero forum posts, week 3</div>
+          <div class="panel-sub">Students with zero posts by week 3 are 2.7× more likely to end the term in the Silent Risk cohort. A simple automated check — "Have you introduced yourself on Discourse?" — could surface many of these students before the pattern solidifies.</div>
+          <div class="feature-stat is-ga">65%</div>
+          <div class="feature-stat-label">Of all students never posted on the forum across all terms</div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">Deadline behavior: how close to the wire do students submit?</div>
+        <div class="panel-sub panel-sub-spaced">Late behavior is instructive. For GAs, 47% of all final saves happen in the last 6 hours before deadline. For projects, the pattern is healthier: more students save early and iterate over days. The ROE is exceptional — it is literally a 45-minute window, so all saves are by definition last-minute. The "Late Sprinter" archetype (3,174 students) represents this deadline-cramming pattern at scale: they are not necessarily lazy, they are under-informed about how the feedback loop works. A "save early, improve often" nudge campaign targeted at GA1 week could shift many Late Sprinters toward the Iterative Grinder behavior — without requiring any change to the course structure itself.</div>
+        <div id="deadline-bars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== ACTIONS ======================== -->
+  <section id="actions">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Conclusion · Action Plan</div>
+        <div>
+          <h2 class="section-h2">Seven moves.<br>Two tracks.</h2>
+          <div class="section-narrative">
+            <p>Anand proposed two tracks: <strong>Track 1</strong> — how do we identify the right intervention for students in the next term? <strong>Track 2</strong> — how do we support alumni who have already completed TDS? The data supports concrete answers to both. Track 1 focuses on early detection and targeted intervention during the term. Track 2 is about leveraging the Forum Helper and Iterative Grinder cohorts as bridges — connecting current students with alumni who succeeded through similar challenges.</p>
+            <p>The seven recommendations below are ranked by priority and mapped to owners. They are not aspirational — every one of them is actionable using tools that already exist. None require new technology; they require <strong>using data the platform already captures to make timely, targeted decisions</strong>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="chips reveal" id="rec-filter"></div>
+      <div class="rec-grid reveal" id="rec-grid"></div>
+    </div>
+  </section>
+
+  <!-- ======================== METHOD ======================== -->
+  <section class="method-section" id="method">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Appendix · Methodology</div>
+        <div>
+          <h2 class="section-h2">How to read this data.</h2>
+          <div class="section-narrative">
+            <p>These findings are <strong>descriptive associations, not causal claims</strong>. A student who posts on the forum is correlated with higher scores — but posting does not cause higher scores, and silent students are not definitively less capable. The archetypes here are operational labels designed to guide intervention design, not character judgments. Every archetype has exceptions, and every intervention should be offered, not imposed.</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2 reveal">
+        <div class="panel">
+          <div class="panel-title">Measurement rules</div>
+          <ul class="method-list" id="method-rules"></ul>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Known limitations</div>
+          <ul class="method-list" id="method-lims"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-note">
+        TDS Student Intelligence Brief · Snapshot 2026-05-06 · 276,562 submissions · 4,466 known students across Jan 2025–Jan 2026 terms
+      </div>
+      <div class="footer-note">
+        Prepared by Mayank Poddar · Data: Discourse + exam platform
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="tip" id="tooltip">
+  <div class="tip-title" id="tip-title"></div>
+  <div class="tip-body" id="tip-body"></div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const DATA = {
+  summaryMetrics: {
+    snapshot: "2026-05-06",
+    submissions: 276562,
+    knownStudents: 4466,
+    forumPosts: 11868,
+    forumParticipants: 1595,
+    staffShare: 20.87,
+    medianFirstReplyHours: 1.37,
+    quizzes: 36,
+    forumTopics: 848
+  },
+  kindSummary: [
+    { code:"ga", kind:"Graded Assignments", color:"var(--ga)", avgFirst:31.63, avgLatest:73.6, avgGain:41.97, avgAttempts:9.01, medianSpanHours:4.2 },
+    { code:"project", kind:"Projects", color:"var(--project)", avgFirst:30.14, avgLatest:78.24, avgGain:48.1, avgAttempts:9.92, medianSpanHours:93.34 },
+    { code:"ee", kind:"Entrance Eval", color:"var(--ee)", avgFirst:17.28, avgLatest:57.61, avgGain:40.32, avgAttempts:9.48, medianSpanHours:48.93 },
+    { code:"roe", kind:"ROE (live exam)", color:"var(--roe)", avgFirst:24.59, avgLatest:37.63, avgGain:13.04, avgAttempts:5.76, medianSpanHours:0.27 }
+  ],
+  engagementCohorts: [
+    { cohort:"silent", label:"Silent (0 posts)", students:2915, avgPosts:0, avgLatest:60.02, avgGa:64.51, avgRoe:44.45 },
+    { cohort:"light", label:"Light (1–9 posts)", students:1311, avgPosts:2.84, avgLatest:72.9, avgGa:77.82, avgRoe:52.48 },
+    { cohort:"active", label:"Active (10+ posts)", students:240, avgPosts:24.51, avgLatest:78.66, avgGa:84.4, avgRoe:53.47 }
+  ],
+  archetypes: [
+    {
+      id:"silent-risk", label:"Silent Risk",
+      cssColor:"var(--c-silent)",
+      description:"No forum posts and an average latest score below 50. These students have not yet found the feedback loop — they attempt fewer quizzes, rarely iterate, and are at severe risk of failing or dropping the course.",
+      students:848, avgPosts:0, avgAttempts:5.78, avgLatest:30.29, avgGa:32.64, avgRoe:31.75,
+      intervention: "Immediate, proactive outreach. Flag any student with zero posts AND fewer than 3 GA1 saves by week 2. Trigger a personal message (not automated spam) from a TA. Offer a low-stakes 'onboarding' Discourse thread where they can ask their first question. Consider pairing with a Forum Helper mentor."
+    },
+    {
+      id:"iterative-grinder", label:"Iterative Grinder",
+      cssColor:"var(--c-grinder)",
+      description:"Averages 10+ attempts per quiz and reaches 70%+ overall. These students have discovered the secret: the feedback loop works if you use it. They save early, read the validator feedback, and improve. They are role models for how TDS should be played.",
+      students:715, avgPosts:4.92, avgAttempts:18.01, avgLatest:83.56, avgGa:88.74, avgRoe:57.59,
+      intervention: "Celebrate and leverage. Send recognition messages. Invite to become peer tutors for GA sessions. Consider highlighting their journey (anonymized) as success stories. Their main unmet need may be ROE preparation — even with great GA scores, their ROE average is 58%, which is low given their GA performance."
+    },
+    {
+      id:"forum-helper", label:"Forum Helper",
+      cssColor:"var(--c-helper)",
+      description:"Posts 10+ times and reaches 70%+ overall. These are TDS's most valuable hidden resource: they are knowledgeable, communicative, and already helping others. Without recognition or structure, many will quietly exit the ecosystem after their term ends.",
+      students:178, avgPosts:25.16, avgAttempts:12.57, avgLatest:84.82, avgGa:90.7, avgRoe:59.59,
+      intervention: "Actively recruit as Learning Assistants and community builders. These 178 students are the best TA pipeline in the program. Offer them formal recognition, potentially course credits or certificates of contribution. Create a structured 'Alumni Helper' track where former Forum Helpers can continue contributing in subsequent terms."
+    },
+    {
+      id:"late-sprinter", label:"Late Sprinter",
+      cssColor:"var(--c-sprinter)",
+      description:"Makes at least half of all final saves in the last 24 hours before deadline. This is the largest single archetype — 3,174 students, more than two-thirds of the entire tracked cohort. They are not failing, but they are leaving significant performance on the table by not using the full iteration window available to them.",
+      students:3174, avgPosts:1.97, avgAttempts:8.52, avgLatest:65.85, avgGa:70.26, avgRoe:49.55,
+      intervention: "Early-save campaign. A targeted message during week 1 of each term explaining: 'Your first save activates the feedback loop. Save anything, even a blank answer, in the first 48 hours.' This single behavioral nudge, if it converts even 20% of Late Sprinters to earlier saves, could add several percentage points to cohort-wide averages."
+    },
+    {
+      id:"roe-struggler", label:"ROE Struggler",
+      cssColor:"var(--c-roe)",
+      description:"Averages 70%+ on GAs but below 40% on the ROE. These are competent students who understand the course material but collapse under the 45-minute live exam format. The ROE tests a completely different skill — environment setup, rapid execution, working under pressure — that the GA feedback loop does not practice at all.",
+      students:719, avgPosts:2.53, avgAttempts:8.3, avgLatest:76.61, avgGa:86.33, avgRoe:22.56,
+      intervention: "Dedicated ROE preparation sessions. Run 2–3 mock ROE sessions in weeks 6–8, where students work under timed conditions. Publish a 'ROE preparation checklist': have your environment set up, know where your files are, practice typing answers fast. This cohort knows the material — they need to practice the format."
+    }
+  ],
+  termGaps: [
+    { term:"Jan 2025", code:"25t1", ga:67.28, roe:56.29, gap:10.99 },
+    { term:"May 2025", code:"25t2", ga:75.44, roe:28.78, gap:46.66 },
+    { term:"Sep 2025", code:"25t3", ga:74.03, roe:43.83, gap:30.2 },
+    { term:"Jan 2026", code:"26t1", ga:76.61, roe:13.1, gap:63.51 }
+  ],
+  quizTimeline: [
+    {quiz:"tds-2025-01-ga1",title:"Jan GA1 Dev Tools",term:"25t1",kind:"ga",avgLatest:68.41,start:"2024-12-27"},
+    {quiz:"tds-2025-01-ga2",title:"Jan GA2 Deploy",term:"25t1",kind:"ga",avgLatest:60.32,start:"2025-01-03"},
+    {quiz:"tds-2025-01-ga3",title:"Jan GA3 LLMs",term:"25t1",kind:"ga",avgLatest:66.48,start:"2025-01-15"},
+    {quiz:"tds-2025-01-ga4",title:"Jan GA4 Data Sourcing",term:"25t1",kind:"ga",avgLatest:66.54,start:"2025-01-31"},
+    {quiz:"tds-2025-01-ga5",title:"Jan GA5 Data Prep",term:"25t1",kind:"ga",avgLatest:76.58,start:"2025-02-07"},
+    {quiz:"tds-2025-01-roe",title:"Jan 2025 ROE",term:"25t1",kind:"roe",avgLatest:56.29,start:"2025-03-02"},
+    {quiz:"tds-2025-05-ga1",title:"May GA1 Dev Tools",term:"25t2",kind:"ga",avgLatest:75.82,start:"2025-04-30"},
+    {quiz:"tds-2025-05-ga2",title:"May GA2 Deploy",term:"25t2",kind:"ga",avgLatest:58.37,start:"2025-05-04"},
+    {quiz:"tds-2025-05-ga3",title:"May GA3 LLMs",term:"25t2",kind:"ga",avgLatest:70.66,start:"2025-05-15"},
+    {quiz:"tds-2025-05-ga4",title:"May GA4 Data Sourcing",term:"25t2",kind:"ga",avgLatest:81.64,start:"2025-06-10"},
+    {quiz:"tds-2025-05-ga5",title:"May GA5 Data Prep",term:"25t2",kind:"ga",avgLatest:83.56,start:"2025-06-17"},
+    {quiz:"tds-2025-05-ga6",title:"May GA6 Data Analysis",term:"25t2",kind:"ga",avgLatest:88.21,start:"2025-07-01"},
+    {quiz:"tds-2025-05-roe",title:"May 2025 ROE",term:"25t2",kind:"roe",avgLatest:28.78,start:"2025-07-20"},
+    {quiz:"tds-2025-09-ga1",title:"Sep GA1 Dev Tools",term:"25t3",kind:"ga",avgLatest:81.53,start:"2025-08-31"},
+    {quiz:"tds-2025-09-ga2",title:"Sep GA2 Deploy",term:"25t3",kind:"ga",avgLatest:48.86,start:"2025-09-04"},
+    {quiz:"tds-2025-09-ga3",title:"Sep GA3 AI Coding",term:"25t3",kind:"ga",avgLatest:69.52,start:"2025-10-02"},
+    {quiz:"tds-2025-09-ga4",title:"Sep GA4 LLMs",term:"25t3",kind:"ga",avgLatest:71.34,start:"2025-10-05"},
+    {quiz:"tds-2025-09-ga5",title:"Sep GA5 Sourcing",term:"25t3",kind:"ga",avgLatest:83.52,start:"2025-10-14"},
+    {quiz:"tds-2025-09-ga6",title:"Sep GA6 Prep",term:"25t3",kind:"ga",avgLatest:76.65,start:"2025-10-21"},
+    {quiz:"tds-2025-09-ga7",title:"Sep GA7 Prep2",term:"25t3",kind:"ga",avgLatest:90.83,start:"2025-10-28"},
+    {quiz:"tds-2025-09-roe",title:"Sep 2025 ROE",term:"25t3",kind:"roe",avgLatest:43.83,start:"2025-11-09"},
+    {quiz:"tds-2026-01-ee",title:"Jan 2026 Entrance Eval",term:"26t1",kind:"ee",avgLatest:57.61,start:"2026-01-06"},
+    {quiz:"tds-2026-01-ga1",title:"Jan26 GA1 Setup",term:"26t1",kind:"ga",avgLatest:47.71,start:"2026-02-05"},
+    {quiz:"tds-2026-01-ga2",title:"Jan26 GA2 Deploy",term:"26t1",kind:"ga",avgLatest:51.42,start:"2026-02-12"},
+    {quiz:"tds-2026-01-ga3",title:"Jan26 GA3 Source",term:"26t1",kind:"ga",avgLatest:68.03,start:"2026-02-19"},
+    {quiz:"tds-2026-01-ga4",title:"Jan26 GA4 Wrangle",term:"26t1",kind:"ga",avgLatest:82.34,start:"2026-02-26"},
+    {quiz:"tds-2026-01-ga5",title:"Jan26 GA5 Analyze",term:"26t1",kind:"ga",avgLatest:94.99,start:"2026-03-05"},
+    {quiz:"tds-2026-01-ga6",title:"Jan26 GA6 Test",term:"26t1",kind:"ga",avgLatest:90.77,start:"2026-03-12"},
+    {quiz:"tds-2026-01-ga7",title:"Jan26 GA7 Present",term:"26t1",kind:"ga",avgLatest:90.75,start:"2026-03-19"},
+    {quiz:"tds-2026-01-ga8",title:"Jan26 GA8 Package",term:"26t1",kind:"ga",avgLatest:76.74,start:"2026-03-26"},
+    {quiz:"tds-2026-01-p1",title:"Jan26 Project 1",term:"26t1",kind:"project",avgLatest:70.12,start:"2026-02-10"},
+    {quiz:"tds-2026-01-p2",title:"Jan26 Project 2",term:"26t1",kind:"project",avgLatest:88.22,start:"2026-04-14"},
+    {quiz:"tds-2026-01-roe",title:"Jan 2026 ROE",term:"26t1",kind:"roe",avgLatest:13.1,start:"2026-04-06"}
+  ],
+  attemptBuckets: [
+    { bucket:"1 attempt", avgLatest:57.02, avgGain:0 },
+    { bucket:"2–4 attempts", avgLatest:69.75, avgGain:23.85 },
+    { bucket:"5–9 attempts", avgLatest:75.02, avgGain:50.17 },
+    { bucket:"10+ attempts", avgLatest:82.61, avgGain:69.29 }
+  ],
+  monthly: [
+    {month:"2025-01",posts:438},{month:"2025-02",posts:1521},{month:"2025-03",posts:712},
+    {month:"2025-04",posts:1043},{month:"2025-05",posts:527},{month:"2025-06",posts:878},
+    {month:"2025-07",posts:439},{month:"2025-08",posts:980},{month:"2025-09",posts:334},
+    {month:"2025-10",posts:1414},{month:"2025-11",posts:1007},{month:"2025-12",posts:504},
+    {month:"2026-01",posts:98},{month:"2026-02",posts:611},{month:"2026-03",posts:493},
+    {month:"2026-04",posts:764},{month:"2026-05",posts:103}
+  ],
+  topThreads: [
+    {title:"Project 2 - TDS Solver", kind:"Project 2", posts:690, participants:153},
+    {title:"Project 1 - Virtual TA (May 2025)", kind:"Project 1", posts:688, participants:158},
+    {title:"Project 2 - Data Analyst Agent (May 2025)", kind:"Project 2", posts:659, participants:184},
+    {title:"Project 1 - LLM Agent (Jan 2025)", kind:"Project 1", posts:614, participants:142},
+    {title:"Project 1 - LLM Code Deploy (Sep 2025)", kind:"Project 1", posts:562, participants:142},
+    {title:"GA4 - Data Sourcing (Jan 2025)", kind:"GA threads", posts:370, participants:151},
+    {title:"GA2 - Deployment Tools (Sep 2025)", kind:"GA threads", posts:184, participants:57},
+    {title:"ROE Discussion (May 2025)", kind:"ROE threads", posts:154, participants:71}
+  ],
+  threadGaps: [
+    {quiz:"May GA2 Deploy",posterPct:87.12,nonposterPct:57.14,gap:29.98,posters:46},
+    {quiz:"Sep GA2 Deploy",posterPct:75.98,nonposterPct:47.24,gap:28.74,posters:51},
+    {quiz:"Jan GA2 Deploy",posterPct:84.64,nonposterPct:59.31,gap:25.33,posters:42},
+    {quiz:"Jan GA4 Sourcing",posterPct:87.53,nonposterPct:62.27,gap:25.26,posters:146},
+    {quiz:"Jan GA1 Dev Tools",posterPct:90.0,nonposterPct:67.61,gap:22.39,posters:46}
+  ],
+  deadlinePressure: [
+    {kind:"ga",label:"After deadline",count:489,pct:3.0},
+    {kind:"ga",label:"Last 6 hours",count:7586,pct:46.7},
+    {kind:"ga",label:"6–24 hrs before",count:2635,pct:16.2},
+    {kind:"ga",label:"1–3 days before",count:2404,pct:14.8},
+    {kind:"ga",label:"3+ days before",count:3218,pct:19.8},
+    {kind:"project",label:"After deadline",count:24,pct:1.8},
+    {kind:"project",label:"Last 6 hours",count:371,pct:28.3},
+    {kind:"project",label:"6–24 hrs before",count:143,pct:10.9},
+    {kind:"project",label:"1–3 days before",count:269,pct:20.6},
+    {kind:"project",label:"3+ days before",count:515,pct:39.4}
+  ],
+  courseTeam: {
+    summary: {
+      supportPosts: 2728,
+      supportShare: 23.0,
+      studentTopics: 767,
+      coveredTopics: 483,
+      coveragePct: 63.0,
+      avgFirstTeamReplyHours: 28.04,
+      medianFirstTeamReplyHours: 4.06,
+      within6Pct: 54.9,
+      within24Pct: 79.1,
+      directReplies: 1909,
+      avgDirectReplyHours: 20.07,
+      medianDirectReplyHours: 1.86,
+      afterHoursPct: 27.7,
+      weekendPct: 23.9
+    },
+    terms: [
+      { term:"25t1", label:"Jan 2025", topics:160, posts:3822, studentTopics:140, teamPosts:886, teamShare:23.2, coverage:63.6, medianFirstReply:4.06, avgFirstReply:24.34, within6:53.9, within24:74.2, noTeamReply:51, afterHoursShare:27.5, weekendShare:23.6 },
+      { term:"25t2", label:"May 2025", topics:166, posts:3069, studentTopics:144, teamPosts:603, teamShare:19.6, coverage:52.1, medianFirstReply:16.21, avgFirstReply:58.48, within6:32.0, within24:65.3, noTeamReply:69, afterHoursShare:25.2, weekendShare:21.1 },
+      { term:"25t3", label:"Sep 2025", topics:230, posts:2985, studentTopics:211, teamPosts:707, teamShare:23.7, coverage:55.9, medianFirstReply:4.0, avgFirstReply:23.77, within6:54.2, within24:78.0, noTeamReply:93, afterHoursShare:30.1, weekendShare:20.4 },
+      { term:"26t1", label:"Jan 2026", topics:284, posts:1964, studentTopics:272, teamPosts:532, teamShare:27.1, coverage:73.9, medianFirstReply:2.73, avgFirstReply:20.81, within6:64.2, within24:87.1, noTeamReply:71, afterHoursShare:27.6, weekendShare:32.3 }
+    ],
+    kinds: [
+      { kind:"Other", studentTopics:289, coverage:63.0, medianFirstReply:3.07, within24:82.4, uncovered:107 },
+      { kind:"GA", studentTopics:178, coverage:68.5, medianFirstReply:7.03, within24:75.4, uncovered:56 },
+      { kind:"Project 1", studentTopics:108, coverage:51.9, medianFirstReply:5.64, within24:71.4, uncovered:52 },
+      { kind:"Project 2", studentTopics:65, coverage:64.6, medianFirstReply:5.83, within24:76.2, uncovered:23 },
+      { kind:"ROE", studentTopics:59, coverage:62.7, medianFirstReply:2.73, within24:86.5, uncovered:22 },
+      { kind:"Operational", studentTopics:43, coverage:65.1, medianFirstReply:1.8, within24:85.7, uncovered:15 },
+      { kind:"Endterm", studentTopics:25, coverage:64.0, medianFirstReply:13.61, within24:75.0, uncovered:9 }
+    ],
+    people: [
+      { user:"carlton", name:"Carlton D'Silva", role:"Instructor", posts:800, topics:213, firstReplies:139, medianFirstReply:7.86, avgFirstReply:25.61, directReplies:559, medianDirectReply:1.67, likes:594, accepted:56, weekendShare:19.0, afterHoursShare:17.4, terms:{ "25t1":394, "25t2":255, "25t3":124, "26t1":27 }, termFirsts:{ "25t1":59, "25t2":45, "25t3":33, "26t1":2 }, read:"Anchor contributor: highest volume, widest term coverage, and many accepted answers. Strong overall, with first-response speed more moderate than direct replies." },
+      { user:"jivraj", name:"Jivraj Singh", role:"TA", posts:719, topics:179, firstReplies:81, medianFirstReply:3.65, avgFirstReply:34.52, directReplies:546, medianDirectReply:2.04, likes:347, accepted:23, weekendShare:23.2, afterHoursShare:34.9, terms:{ "25t1":331, "25t2":143, "25t3":161, "26t1":84 }, termFirsts:{ "25t1":17, "25t2":9, "25t3":24, "26t1":31 }, read:"Reliable high-volume TA: fast median first replies and heavy after-hours coverage. One of the strongest steady-state support anchors." },
+      { user:"hritikroshan_hrm", name:"Hritik Roshan", role:"TA", posts:446, topics:141, firstReplies:83, medianFirstReply:9.42, avgFirstReply:45.43, directReplies:327, medianDirectReply:6.06, likes:153, accepted:20, weekendShare:22.9, afterHoursShare:33.6, terms:{ "25t2":191, "25t3":154, "26t1":101 }, termFirsts:{ "25t2":20, "25t3":24, "26t1":39 }, read:"Strong technical support load across May, Sep, and Jan. Useful debugger, though first-response speed is slower than the strongest triage responders." },
+      { user:"23f3004197", name:"Mayank Poddar", role:"TA", posts:331, topics:137, firstReplies:96, medianFirstReply:0.41, avgFirstReply:12.59, directReplies:214, medianDirectReply:0.21, likes:183, accepted:58, weekendShare:29.6, afterHoursShare:29.6, terms:{ "25t3":145, "26t1":186 }, termRoles:{ "25t3":"LA", "26t1":"TA" }, termFirsts:{ "25t3":18, "26t1":78 }, note:"Sep 2025: LA; Jan 2026: TA", read:"Exceptional triage speed: fastest median first response and the most accepted answers. The LA-to-TA path is clearly working." },
+      { user:"23f2004759", name:"Sujal Pradhan", role:"TA", posts:232, topics:108, firstReplies:66, medianFirstReply:9.86, avgFirstReply:26.08, directReplies:137, medianDirectReply:9.43, likes:109, accepted:14, weekendShare:26.7, afterHoursShare:27.2, terms:{ "25t3":108, "26t1":124 }, termFirsts:{ "25t3":19, "26t1":47 }, read:"Solid support expansion in Sep and Jan with good topic reach. Best used as a second-line support contributor unless paired with faster triage." },
+      { user:"saransh_saini", name:"Saransh Saini", role:"TA", posts:106, topics:21, firstReplies:8, medianFirstReply:2.88, avgFirstReply:7.77, directReplies:93, medianDirectReply:1.75, likes:61, accepted:4, weekendShare:39.6, afterHoursShare:30.2, terms:{ "25t1":106 }, termFirsts:{ "25t1":8 }, read:"Small but sharp footprint: quick first replies and strong weekend presence in Jan 2025. Useful model for burst support during pressure windows." },
+      { user:"s.anand", name:"Anand S", role:"Faculty", posts:86, topics:36, firstReplies:7, medianFirstReply:18.13, avgFirstReply:53.04, directReplies:32, medianDirectReply:1.46, likes:287, accepted:5, weekendShare:31.4, afterHoursShare:24.4, terms:{ "25t1":51, "25t2":11, "25t3":15, "26t1":9 }, termFirsts:{ "25t1":3, "26t1":4 }, read:"Low volume, high signal: faculty posts attract disproportionate attention. Best for policy, course direction, and canonical clarifications." },
+      { user:"iamprasna", name:"Prasanna S", role:"Instructor", posts:8, topics:6, firstReplies:3, medianFirstReply:22.04, avgFirstReply:16.82, directReplies:1, medianDirectReply:0.85, likes:14, accepted:1, weekendShare:25.0, afterHoursShare:25.0, terms:{ "25t1":4, "25t2":3, "26t1":1 }, termFirsts:{ "25t1":2, "25t2":1 }, read:"Light visible Discourse footprint. The data suggests occasional targeted intervention rather than frontline forum support." }
+    ]
+  },
+  timing: {
+    metrics: [
+      { num:"43.3%", lbl:"Known submissions happen on Sunday", cls:"accent" },
+      { num:"47.8%", lbl:"Known submissions land between 18:00–24:00 IST", cls:"bad" },
+      { num:"23:00", lbl:"Peak overall deadline hour; Sun 13:00 is ROE spike", cls:"ga" },
+      { num:"1.3 hrs", lbl:"Median first forum reply", cls:"good" },
+      { num:"16.9%", lbl:"Forum topics with no reply", cls:"bad" },
+      { num:"38.4%", lbl:"Mapped quiz-thread posts in final 48 hours", cls:"roe" }
+    ],
+    submissionHours: [9726,5641,3661,2212,1163,1063,1129,1619,2410,3808,6063,8403,10566,28701,12154,11670,13084,13870,14301,16890,18372,20681,23804,31156],
+    submissionDays: [26036,16520,25423,20338,27953,32393,113484],
+    submissionHeatmap: [2192,637,371,295,123,133,161,212,225,413,605,788,982,936,894,1036,1180,1180,1381,1848,2155,2396,2652,3241,788,374,319,137,79,128,73,242,187,333,482,721,903,950,922,914,999,874,1000,1146,970,1193,1355,1431,994,759,353,217,135,131,210,149,249,308,699,1113,1146,1172,1101,1044,1194,1465,1527,1612,1807,2013,2415,3610,927,576,396,280,115,107,102,230,256,416,784,871,897,1095,998,1054,1424,1189,1176,1102,1450,1592,1622,1679,1194,761,564,295,175,166,144,205,334,521,834,1067,1358,1370,1307,1461,1519,1643,1722,1912,1998,2086,2363,2954,1298,902,543,323,142,159,142,209,392,624,907,1364,1803,1852,1582,1736,1941,1910,1976,2498,2327,2338,2640,2785,2333,1632,1115,665,394,239,297,372,767,1193,1752,2479,3477,21326,5350,4425,4827,5609,5519,6772,7665,9063,10757,15456],
+    forumHours: [486,297,153,107,78,52,98,97,253,393,501,709,795,846,778,675,756,638,674,699,719,678,722,664],
+    forumDays: [1609,1491,1685,1405,1530,1751,2397],
+    forumHeatmap: [107,25,7,17,5,10,15,17,43,64,76,112,95,95,90,95,122,108,103,80,80,92,85,66,40,40,31,16,10,3,7,14,28,70,54,80,61,99,97,96,102,93,100,72,94,84,99,101,52,35,18,12,10,11,18,13,44,68,85,81,102,72,81,101,78,77,129,149,117,112,111,109,56,43,16,6,16,11,11,15,37,50,76,115,123,87,88,85,102,74,56,73,77,65,61,62,59,29,38,17,7,6,18,12,33,48,68,106,88,96,75,86,88,86,72,104,97,92,114,91,88,56,28,23,18,9,12,9,37,47,85,104,100,95,137,107,157,110,92,75,107,95,86,74,84,69,15,16,12,2,17,17,31,46,57,111,226,302,210,105,107,90,122,146,147,138,166,161],
+    deadlineScoreImpact: [
+      { bucket:"3+ days early", gaShare:19.7, gaScore:85.7, projectShare:39.0, projectScore:85.7 },
+      { bucket:"1–3 days early", gaShare:14.7, gaScore:80.7, projectShare:20.3, projectScore:81.1 },
+      { bucket:"6–24 hrs early", gaShare:16.1, gaScore:80.9, projectShare:10.8, projectScore:80.9 },
+      { bucket:"Last 6 hours", gaShare:46.4, gaScore:70.7, projectShare:28.1, projectScore:69.4 },
+      { bucket:"After deadline", gaShare:3.0, gaScore:40.4, projectShare:1.8, projectScore:7.1 }
+    ],
+    replyMetrics: [
+      { num:"67.5%", lbl:"Of replied topics receive a first reply within 6 hours" },
+      { num:"87.5%", lbl:"Of replied topics receive a first reply within 24 hours" },
+      { num:"3.5 hrs", lbl:"Median first staff reply when staff reply" },
+      { num:"50.2%", lbl:"Of first replies come from staff; the rest are peer replies" }
+    ],
+    timingNotes: [
+      { num:"22.3%", txt:"Student forum posts peak on Sunday, while staff posts peak midweek. Weekend pressure needs explicit coverage." },
+      { num:"11.6%", txt:"Mapped quiz-thread posts arrive in the final 6 hours before deadline — the panic window for pinned FAQs and TA triage." },
+      { num:"85.7%", txt:"Average GA score for students whose final save lands 3+ days early, compared with 70.7% in the final 6 hours." }
+    ]
+  },
+  recommendations: [
+    { owner:"Students", title:"Submit early, then iterate deliberately", priority:95,
+      evidence:"GAs and projects reward repeated saves; ROE does not. Students who save 10+ times average 83% vs. 57% for single-save students.",
+      action:"Make a first save within 48 hours of each GA release, even if the answer is incomplete. Use validator feedback to guide each next attempt. Do not wait for the deadline rush." },
+    { owner:"Students", title:"Treat ROE as a different sport", priority:90,
+      evidence:"ROE spans are measured in minutes, not hours. The iteration premium is tiny. Jan 2026 ROE averaged just 13% — the lowest in any term.",
+      action:"Practice timed 45-minute runs on GA questions in the weeks before ROE. Set up your environment before the exam window opens. Treat it like a sprint, not a marathon." },
+    { owner:"TAs/Instructors", title:"Find and reach silent students in week 2", priority:92,
+      evidence:"848 students with zero posts and sub-50% scores average just 30.3% overall. These students can be identified by week 2 using three signals: no posts, <3 GA1 saves, GA1 score <40%.",
+      action:"Build a simple weekly flag: students meeting 2 of 3 risk criteria in week 2 get a personal (not automated) TA outreach. Offer an onboarding Discourse thread. Pair flagged students with Forum Helpers if possible." },
+    { owner:"TAs/Instructors", title:"Staff the top 16 discussion threads", priority:86,
+      evidence:"The top 16 threads account for 49% of all forum posts. These are predictable: project threads, GA2 (Deployment), and ROE discussion threads dominate every term.",
+      action:"Assign a dedicated TA to each high-traffic thread. Pin canonical answers at the top. Publish weekly thread digests summarizing the most common questions and solutions." },
+    { owner:"Course Design", title:"Recruit Forum Helpers as Learning Assistants", priority:94,
+      evidence:"178 Forum Helpers — students who posted 10+ times and scored 70%+ — are the program's best untapped resource. They are already helping for free.",
+      action:"Create a formal 'Alumni Helper' track. Reach out to all 178 Forum Helpers at end of term, offer a certificate of contribution, and invite them to continue as LAs in the next term. This is a free force-multiplier." },
+    { owner:"Course Design", title:"Reduce validator brittleness", priority:88,
+      evidence:"'Validator: PR merge server' (4,087 failures) and 'deadline missed' (3,967 missed) are the two most common failure modes. Validator failures are avoidable with better error messages.",
+      action:"Add preflight checks and smoke-test examples for the 5 most-failing validators. Publish clear failure message guides on Discourse. Consider grace-period windows for deadline misses on first offences." },
+    { owner:"Course Design", title:"Strengthen and enforce entrance evaluation", priority:82,
+      evidence:"GA1 is designed as a prerequisites check, but many students who score below 40% on GA1 remain enrolled and struggle all term. The Entrance Eval (57.6% avg latest) shows significant room to filter before term begins.",
+      action:"Require a minimum GA1 score of 40% within the first two weeks as a formal soft gate. Students below this threshold receive a counseling message: 'Consider taking this in a later term when your foundations are stronger.'" }
+  ],
+  methodology: {
+    rules: [
+      "Outcome visuals use the latest known-student submission per quiz — not averages across all submissions.",
+      "Iteration visuals use first-to-last paired submissions for the same quiz and email address.",
+      "Percentages are capped to 0–100%; anomaly charts preserve raw outlier counts separately.",
+      "Forum associations map Discourse usernames to official IITM emails using the local CSV mapping.",
+      "Timing visuals use IST; submission timing uses known-student submissions, final-save timing uses each student's latest save per quiz, and the Sunday 13:00 peak is influenced by the roughly 45-minute ROE exam window.",
+      "Two test quizzes (tds-2025-05-roe2 and tds-2025-09-roe-test) are excluded.",
+      "Course-team analytics use topic term tags, not only calendar month. Human support includes faculty, instructors, TAs and LAs."
+    ],
+    limitations: [
+      "Some official-domain submissions remain unmapped and are excluded from known-student outcome charts.",
+      "Discourse activity captures public forum interaction only — private messages and WhatsApp groups are invisible.",
+      "Question mastery is estimated from latest-submission scores; true per-question mastery is approximated.",
+      "Archetype overlap exists: some students qualify for multiple archetypes; dominant signal is used.",
+      "Cohort comparisons are descriptive associations, not causal claims about what drives performance."
+    ]
+  }
+};
+
+// ============================================================
+// UTILITY
+// ============================================================
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const integerFormatter = new Intl.NumberFormat("en-IN");
+const decimalFormatter = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 1 });
+const formatPercent = (value) => `${decimalFormatter.format(value)}%`;
+const escapeAttribute = (value) => String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/"/g, '&quot;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;');
+const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const HOURS_IN_DAY = Array.from({ length: 24 }, (_, hour) => hour);
+
+function getCssVariable(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function resolveColorToken(str) {
+  // Resolve both var(--foo) and raw --foo tokens used in chart code.
+  const value = String(str || '').trim();
+  if (value.startsWith('--')) return getCssVariable(value);
+  const m = value.match(/var\((--[^),\s]+)(?:,[^)]+)?\)/);
+  return m ? getCssVariable(m[1]) : value;
+}
+
+// Tooltip
+const tipEl = $('#tooltip'), tipTitle = $('#tip-title'), tipBody = $('#tip-body');
+function showTooltip(event, title, body) {
+  tipTitle.textContent = title;
+  tipBody.innerHTML = body || '';
+  tipEl.classList.add('vis');
+  positionTooltip(event);
+}
+function positionTooltip(event) {
+  const margin = 14;
+  const offset = 16;
+  const rect = tipEl.getBoundingClientRect();
+  let left = event.clientX + offset;
+  let top = event.clientY + offset;
+  if (left + rect.width + margin > window.innerWidth) left = event.clientX - rect.width - offset;
+  if (top + rect.height + margin > window.innerHeight) top = event.clientY - rect.height - offset;
+  tipEl.style.left = Math.max(margin, left) + 'px';
+  tipEl.style.top = Math.max(margin, top) + 'px';
+}
+function hideTooltip() { tipEl.classList.remove('vis'); }
+document.addEventListener('mousemove', (e) => { if (tipEl.classList.contains('vis')) positionTooltip(e); });
+let activeTipTarget = null;
+function getTooltipTarget(event) {
+  return event.target instanceof Element ? event.target.closest('[data-tip-title]') : null;
+}
+document.addEventListener('pointerover', (event) => {
+  const target = getTooltipTarget(event);
+  if (!target) return;
+  activeTipTarget = target;
+  showTooltip(event, target.dataset.tipTitle, target.dataset.tipBody);
+});
+document.addEventListener('pointermove', (event) => {
+  const target = getTooltipTarget(event);
+  if (!target) return;
+  if (target !== activeTipTarget) {
+    activeTipTarget = target;
+    showTooltip(event, target.dataset.tipTitle, target.dataset.tipBody);
+    return;
+  }
+  positionTooltip(event);
+});
+document.addEventListener('pointerout', (event) => {
+  if (!activeTipTarget) return;
+  if (event.relatedTarget instanceof Node && activeTipTarget.contains(event.relatedTarget)) return;
+  activeTipTarget = null;
+  hideTooltip();
+});
+
+// ============================================================
+// RENDER HELPERS
+// ============================================================
+function renderMetricCards(containerSelector, metrics) {
+  $(containerSelector).innerHTML = metrics.map(metric => `
+    <div class="metric-box ${metric.cls || ''}">
+      <div class="num">${metric.num}</div>
+      <div class="lbl">${metric.lbl}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// SECTION: METRIC STRIP
+// ============================================================
+function renderMetricStrip() {
+  const metrics = [
+    { num: integerFormatter.format(DATA.summaryMetrics.knownStudents), lbl: "Known students tracked", cls: "accent" },
+    { num: integerFormatter.format(DATA.summaryMetrics.submissions), lbl: "Total quiz submissions", cls: "" },
+    { num: "65%", lbl: "Students who never posted on forum", cls: "bad" },
+    { num: "42 pts", lbl: "Avg GA score gain (first → last save)", cls: "good" },
+    { num: "13.1%", lbl: "Jan 2026 ROE average score", cls: "roe" },
+    { num: decimalFormatter.format(DATA.summaryMetrics.medianFirstReplyHours) + " hr", lbl: "Median forum reply time", cls: "ga" }
+  ];
+  renderMetricCards('#metric-strip', metrics);
+
+  const roeMetrics = [
+    { num: "56.3%", lbl: "Jan 2025 ROE avg", cls: "" },
+    { num: "28.8%", lbl: "May 2025 ROE avg", cls: "bad" },
+    { num: "43.8%", lbl: "Sep 2025 ROE avg", cls: "" },
+    { num: "13.1%", lbl: "Jan 2026 ROE avg — all-time low", cls: "roe" },
+    { num: "63.5 pts", lbl: "Jan 2026 GA–ROE gap", cls: "bad" },
+    { num: "76.6%", lbl: "Jan 2026 GA avg (same students)", cls: "good" }
+  ];
+  renderMetricCards('#roe-metrics', roeMetrics);
+}
+
+// ============================================================
+// GAIN CHART (first vs latest by kind)
+// ============================================================
+function renderGainChart() {
+  const el = $('#gain-chart');
+  const W = el.offsetWidth || 480, H = 230;
+  const margin = { top: 18, right: 20, bottom: 62, left: 52 };
+  const svg = d3.select(el).html('').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+  const data = DATA.kindSummary;
+  const kinds = data.map(d => d.kind);
+  const x0 = d3.scaleBand().domain(kinds).range([margin.left, W - margin.right]).padding(0.2);
+  const x1 = d3.scaleBand().domain(['First','Latest']).range([0, x0.bandwidth()]).padding(0.08);
+  const y = d3.scaleLinear().domain([0, 100]).range([H - margin.bottom, margin.top]);
+  // gridlines
+  svg.selectAll('.grid').data(y.ticks(5)).join('line').attr('class','grid-line')
+    .attr('x1', margin.left).attr('x2', W - margin.right)
+    .attr('y1', d => y(d)).attr('y2', d => y(d));
+  // axes
+  svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-margin.bottom})`).call(d3.axisBottom(x0).tickSize(0)).select('.domain').remove();
+  svg.append('g').attr('class','axis').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d => d+'%')).select('.domain').remove();
+  // bars
+  const groups = svg.selectAll('.grp').data(data).join('g').attr('transform', d => `translate(${x0(d.kind)},0)`);
+  ['First', 'Latest'].forEach(type => {
+    groups.append('rect')
+      .attr('x', x1(type)).attr('y', d => y(type === 'First' ? d.avgFirst : d.avgLatest))
+      .attr('width', x1.bandwidth())
+      .attr('height', d => y(0) - y(type === 'First' ? d.avgFirst : d.avgLatest))
+      .attr('rx', 3)
+      .attr('fill', type === 'First' ? 'rgba(255,255,255,.1)' : d => resolveColorToken(d.color))
+      .attr('opacity', .9)
+      .on('mousemove', (event, d) => showTooltip(event, d.kind + ' — ' + type,
+        type === 'First' ? `Avg first save: ${formatPercent(d.avgFirst)}` : `Avg latest: ${formatPercent(d.avgLatest)} (+${decimalFormatter.format(d.avgGain)} pts gain)`))
+      .on('mouseleave', hideTooltip);
+  });
+  // gain labels on top of latest bar
+  groups.append('text').attr('class','chart-label')
+    .attr('x', x1('Latest') + x1.bandwidth()/2).attr('y', d => y(d.avgLatest) - 4)
+    .attr('text-anchor','middle').text(d => '+' + Math.round(d.avgGain));
+  // legend
+  const legend = svg.append('g').attr('transform',`translate(${margin.left + 10},${H - 12})`);
+  [['First save','rgba(255,255,255,.2)'],['Latest save','var(--ga)']].forEach(([l,c],i) => {
+    const g = legend.append('g').attr('transform',`translate(${i*110},0)`);
+    g.append('rect').attr('width',10).attr('height',10).attr('rx',2).attr('y',-10).attr('fill',resolveColorToken(c));
+    g.append('text').attr('x',14).attr('class','chart-label').text(l);
+  });
+}
+
+// ============================================================
+// FORUM COHORT BARS
+// ============================================================
+function renderForumCohortChart() {
+  const el = $('#forum-cohort-chart');
+  const data = DATA.engagementCohorts;
+  const W = el.offsetWidth || 480, H = 230;
+  const margin = { top: 18, right: 20, bottom: 72, left: 52 };
+  const svg = d3.select(el).html('').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+  const x = d3.scaleBand().domain(data.map(d => d.label)).range([margin.left, W - margin.right]).padding(0.28);
+  const y = d3.scaleLinear().domain([0, 100]).range([H - margin.bottom, margin.top]);
+  svg.selectAll('.grid').data(y.ticks(5)).join('line').attr('class','grid-line')
+    .attr('x1',margin.left).attr('x2',W-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+  svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-margin.bottom})`).call(d3.axisBottom(x).tickSize(0)).select('.domain').remove();
+  svg.append('g').attr('class','axis').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d=>d+'%')).select('.domain').remove();
+  const colors = ['var(--c-silent)','var(--c-sprinter)','var(--c-helper)'];
+  svg.selectAll('rect').data(data).join('rect')
+    .attr('x', d => x(d.label)).attr('y', d => y(d.avgLatest))
+    .attr('width', x.bandwidth()).attr('height', d => y(0)-y(d.avgLatest)).attr('rx',4)
+    .attr('fill',(d,i) => resolveColorToken(colors[i]))
+    .on('mousemove',(event,d) => showTooltip(event, d.label,
+      `${integerFormatter.format(d.students)} students<br>Avg score: ${formatPercent(d.avgLatest)}<br>Avg GA: ${formatPercent(d.avgGa)} · Avg ROE: ${formatPercent(d.avgRoe)}`))
+    .on('mouseleave', hideTooltip);
+  svg.selectAll('.val').data(data).join('text').attr('class','chart-label')
+    .attr('x', d => x(d.label) + x.bandwidth()/2).attr('y', d => y(d.avgLatest)-5)
+    .attr('text-anchor','middle').text(d => formatPercent(d.avgLatest));
+  // student count below bar
+  svg.selectAll('.cnt').data(data).join('text').attr('class','chart-label')
+    .attr('x', d => x(d.label) + x.bandwidth()/2).attr('y', H - margin.bottom + 32)
+    .attr('text-anchor','middle').text(d => integerFormatter.format(d.students) + ' students');
+}
+
+// ============================================================
+// ARCHETYPE BUBBLE
+// ============================================================
+function renderArchetypeBubble() {
+  const el = $('#archetype-bubble');
+  const W = el.offsetWidth || 700, H = 390;
+  const margin = { top: 42, right: 78, bottom: 66, left: 66 };
+  const svg = d3.select(el).html('').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+  const data = DATA.archetypes;
+  const maxStudents = d3.max(data, d => d.students);
+  const x = d3.scaleLog().domain([0.5, 30]).range([margin.left, W - margin.right]).clamp(true);
+  const y = d3.scaleLinear().domain([0, 100]).range([H - margin.bottom, margin.top]);
+  const r = d3.scaleSqrt().domain([0, maxStudents]).range([10, 54]);
+  // gridlines
+  svg.selectAll('.gy').data(y.ticks(5)).join('line').attr('class','grid-line')
+    .attr('x1',margin.left).attr('x2',W-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+  // axes
+  const xAxis = d3.axisBottom(x).tickValues([0.5,1,3,10,25]).tickFormat(d => d < 1 ? '0' : d);
+  svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-margin.bottom})`).call(xAxis).select('.domain').remove();
+  svg.append('g').attr('class','axis').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d=>d+'%')).select('.domain').remove();
+  // axis labels
+  svg.append('text').attr('class','chart-label').attr('x',W/2).attr('y',H-4).attr('text-anchor','middle').text('Avg forum posts per student');
+  svg.append('text').attr('class','chart-label').attr('transform',`rotate(-90)`).attr('x',-H/2).attr('y',14).attr('text-anchor','middle').text('Avg latest score (%)');
+  // bubbles with jitter for silent (posts=0, use log 0.5)
+  const plotX = d => d.avgPosts === 0 ? x(0.5) : x(d.avgPosts);
+  svg.selectAll('circle').data(data).join('circle')
+    .attr('cx', plotX).attr('cy', d => y(d.avgLatest))
+    .attr('r', d => r(d.students)).attr('fill', d => resolveColorToken(d.cssColor))
+    .attr('opacity', .65).attr('stroke', d => resolveColorToken(d.cssColor))
+    .attr('stroke-width', 2)
+    .on('mousemove', (event,d) => showTooltip(event, d.label,
+      `${integerFormatter.format(d.students)} students<br>Avg posts: ${decimalFormatter.format(d.avgPosts)} · Avg score: ${formatPercent(d.avgLatest)}<br>Avg attempts: ${decimalFormatter.format(d.avgAttempts)}`))
+    .on('mouseleave', hideTooltip);
+  // labels
+  const labelOffsets = {
+    'silent-risk': { dx: 0, dy: -36 },
+    'late-sprinter': { dx: -48, dy: -70 },
+    'roe-struggler': { dx: 54, dy: -38 },
+    'iterative-grinder': { dx: 0, dy: -42 },
+    'forum-helper': { dx: 0, dy: -30 }
+  };
+  svg.selectAll('.blbl').data(data).join('text').attr('class','chart-label')
+    .attr('x', d => plotX(d) + (labelOffsets[d.id]?.dx || 0))
+    .attr('y', d => y(d.avgLatest) + (labelOffsets[d.id]?.dy || -r(d.students) - 8))
+    .attr('text-anchor','middle').attr('fill', d => resolveColorToken(d.cssColor))
+    .attr('font-size', 11).attr('font-weight','600')
+    .attr('stroke', resolveColorToken('--card')).attr('stroke-width', 3).attr('paint-order', 'stroke')
+    .text(d => d.label);
+}
+
+// ============================================================
+// ARCHETYPE CARDS
+// ============================================================
+function renderArchetypeCards() {
+  $('#archetype-cards').innerHTML = DATA.archetypes.map(a => `
+    <div class="arch-card" style="--cohort-color:${a.cssColor}">
+      <div class="arch-meta">
+        <span class="arch-tag">${a.id.replace('-',' ')}</span>
+        <span class="arch-count">${integerFormatter.format(a.students)} students</span>
+      </div>
+      <div class="arch-name">${a.label}</div>
+      <div class="arch-desc">${a.description}</div>
+      <div class="arch-stats">
+        <div class="arch-stat">
+          <div class="val">${formatPercent(a.avgLatest)}</div>
+          <div class="lbl">Avg latest score</div>
+        </div>
+        <div class="arch-stat">
+          <div class="val">${decimalFormatter.format(a.avgAttempts)}×</div>
+          <div class="lbl">Avg attempts</div>
+        </div>
+        <div class="arch-stat">
+          <div class="val">${decimalFormatter.format(a.avgPosts)}</div>
+          <div class="lbl">Avg posts</div>
+        </div>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:${a.avgLatest}%"></div></div>
+      <div class="arch-intervention">
+        <div class="int-label">↗ Recommended intervention</div>
+        <div class="int-text">${a.intervention}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// ATTEMPT BARS
+// ============================================================
+function renderAttemptBars() {
+  const el = $('#attempt-bars');
+  const data = DATA.attemptBuckets;
+  const W = el.offsetWidth || 480, H = 230;
+  const margin = { top: 18, right: 20, bottom: 56, left: 52 };
+  const svg = d3.select(el).html('').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+  const x = d3.scaleBand().domain(data.map(d => d.bucket)).range([margin.left, W-margin.right]).padding(0.22);
+  const y = d3.scaleLinear().domain([0, 100]).range([H-margin.bottom, margin.top]);
+  svg.selectAll('.grid').data(y.ticks(5)).join('line').attr('class','grid-line')
+    .attr('x1',margin.left).attr('x2',W-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+  svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-margin.bottom})`).call(d3.axisBottom(x).tickSize(0)).select('.domain').remove();
+  svg.append('g').attr('class','axis').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d=>d+'%')).select('.domain').remove();
+  const colorScale = d3.scaleLinear().domain([0, 3]).range(['#ff4d4d', '#2ecc71']);
+  svg.selectAll('rect').data(data).join('rect')
+    .attr('x', d=>x(d.bucket)).attr('y', d=>y(d.avgLatest))
+    .attr('width', x.bandwidth()).attr('height', d=>y(0)-y(d.avgLatest)).attr('rx',4)
+    .attr('fill', (d,i) => colorScale(i))
+    .on('mousemove',(event,d) => showTooltip(event, d.bucket, `Avg latest: ${formatPercent(d.avgLatest)}<br>Avg gain: +${formatPercent(d.avgGain)}`))
+    .on('mouseleave', hideTooltip);
+  svg.selectAll('.val').data(data).join('text').attr('class','chart-label')
+    .attr('x', d=>x(d.bucket)+x.bandwidth()/2).attr('y', d=>y(d.avgLatest)-5)
+    .attr('text-anchor','middle').text(d=>formatPercent(d.avgLatest));
+}
+
+// ============================================================
+// ROE GAP CHART
+// ============================================================
+function renderRoeGapChart() {
+  const el = $('#roe-gap-chart');
+  const data = DATA.termGaps;
+  const W = el.offsetWidth || 480, H = 230;
+  const margin = { top: 24, right: 20, bottom: 58, left: 52 };
+  const svg = d3.select(el).html('').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+  const x = d3.scaleBand().domain(data.map(d => d.term)).range([margin.left, W-margin.right]).padding(0.28);
+  const y = d3.scaleLinear().domain([0, 100]).range([H-margin.bottom, margin.top]);
+  svg.selectAll('.grid').data(y.ticks(5)).join('line').attr('class','grid-line')
+    .attr('x1',margin.left).attr('x2',W-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+  svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-margin.bottom})`).call(d3.axisBottom(x).tickSize(0)).select('.domain').remove();
+  svg.append('g').attr('class','axis').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d=>d+'%')).select('.domain').remove();
+  const x1 = d3.scaleBand().domain(['GA','ROE']).range([0, x.bandwidth()]).padding(0.06);
+  const groups = svg.selectAll('.grp').data(data).join('g').attr('transform', d=>`translate(${x(d.term)},0)`);
+  groups.append('rect').attr('x',x1('GA')).attr('y', d=>y(d.ga)).attr('width',x1.bandwidth()).attr('height',d=>y(0)-y(d.ga)).attr('rx',3)
+    .attr('fill', resolveColorToken('--ga')).attr('opacity',.85)
+    .on('mousemove',(event,d)=>showTooltip(event,d.term+' GA',`Avg GA: ${formatPercent(d.ga)}`)).on('mouseleave',hideTooltip);
+  groups.append('rect').attr('x',x1('ROE')).attr('y',d=>y(d.roe)).attr('width',x1.bandwidth()).attr('height',d=>y(0)-y(d.roe)).attr('rx',3)
+    .attr('fill',resolveColorToken('--roe')).attr('opacity',.85)
+    .on('mousemove',(event,d)=>showTooltip(event,d.term+' ROE',`Avg ROE: ${formatPercent(d.roe)}<br>Gap from GA: ${formatPercent(d.gap)}`)).on('mouseleave',hideTooltip);
+  // gap label
+  groups.append('text').attr('class','chart-label')
+    .attr('x',x.bandwidth()/2).attr('y',d=>y(Math.max(d.ga,d.roe))-6)
+    .attr('text-anchor','middle').attr('fill','rgba(255,255,255,.5)')
+    .text(d=>'−'+formatPercent(d.gap));
+  // legend
+  const leg = svg.append('g').attr('transform',`translate(${margin.left+6},${H-10})`);
+  [['GA avg',resolveColorToken('--ga')],['ROE avg',resolveColorToken('--roe')]].forEach(([l,c],i)=>{
+    const g = leg.append('g').attr('transform',`translate(${i*80},0)`);
+    g.append('rect').attr('width',9).attr('height',9).attr('rx',2).attr('y',-9).attr('fill',c);
+    g.append('text').attr('x',13).attr('class','chart-label').text(l);
+  });
+}
+
+// ============================================================
+// QUIZ TIMELINE
+// ============================================================
+function renderQuizTimeline() {
+  const el = $('#quiz-timeline');
+  const W = el.offsetWidth || 900, H = 320;
+  const margin = { top: 24, right: 34, bottom: 62, left: 52 };
+  const svg = d3.select(el).html('').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+  const data = DATA.quizTimeline.map(d => ({...d, date: new Date(d.start)})).sort((a,b) => a.date-b.date);
+  const x = d3.scaleTime().domain(d3.extent(data, d=>d.date)).range([margin.left, W-margin.right]);
+  const y = d3.scaleLinear().domain([0, 105]).range([H-margin.bottom, margin.top]);
+  svg.selectAll('.grid').data(y.ticks(5)).join('line').attr('class','grid-line')
+    .attr('x1',margin.left).attr('x2',W-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+  svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-margin.bottom})`).call(d3.axisBottom(x).ticks(8).tickFormat(d3.timeFormat('%b %y'))).select('.domain').remove();
+  svg.append('g').attr('class','axis').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d=>d+'%')).select('.domain').remove();
+  const colorMap = { ga: resolveColorToken('--ga'), roe: resolveColorToken('--roe'), project: resolveColorToken('--project'), ee: resolveColorToken('--ee') };
+  svg.selectAll('circle').data(data).join('circle')
+    .attr('cx', d=>x(d.date)).attr('cy', d=>y(d.avgLatest))
+    .attr('r', d => d.kind === 'roe' ? 7 : 5)
+    .attr('fill', d=>colorMap[d.kind]||'var(--accent)')
+    .attr('stroke','rgba(0,0,0,.3)').attr('stroke-width',1)
+    .on('mousemove',(event,d)=>showTooltip(event,d.title,`Kind: ${d.kind.toUpperCase()}<br>Avg score: ${formatPercent(d.avgLatest)}<br>Term: ${d.term}`))
+    .on('mouseleave',hideTooltip);
+  // ROE label arrows
+  data.filter(d=>d.kind==='roe').forEach(d=>{
+    svg.append('text').attr('class','chart-label').attr('x',x(d.date)).attr('y',y(d.avgLatest)+16)
+      .attr('text-anchor','middle').attr('fill',resolveColorToken('--roe')).text(formatPercent(d.avgLatest));
+  });
+  // legend
+  const leg = svg.append('g').attr('transform',`translate(${margin.left+6},${H-10})`);
+  [['GA',colorMap.ga],['ROE',colorMap.roe],['Project',colorMap.project],['EE',colorMap.ee]].forEach(([l,c],i)=>{
+    const g = leg.append('g').attr('transform',`translate(${i*75},0)`);
+    g.append('circle').attr('cx',5).attr('cy',-4).attr('r',4).attr('fill',c);
+    g.append('text').attr('x',13).attr('class','chart-label').text(l);
+  });
+}
+
+// ============================================================
+// FORUM LINE CHART
+// ============================================================
+function renderForumLine() {
+  const el = $('#forum-line');
+  const W = el.offsetWidth || 480, H = 230;
+  const margin = { top: 18, right: 20, bottom: 56, left: 52 };
+  const svg = d3.select(el).html('').append('svg').attr('viewBox', `0 0 ${W} ${H}`);
+  const data = DATA.monthly.map(d => ({...d, date: new Date(d.month+'-01')}));
+  const x = d3.scaleTime().domain(d3.extent(data, d=>d.date)).range([margin.left, W-margin.right]);
+  const y = d3.scaleLinear().domain([0, d3.max(data, d=>d.posts)*1.12]).range([H-margin.bottom, margin.top]);
+  svg.selectAll('.grid').data(y.ticks(4)).join('line').attr('class','grid-line')
+    .attr('x1',margin.left).attr('x2',W-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+  svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-margin.bottom})`).call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat('%b %y'))).select('.domain').remove();
+  svg.append('g').attr('class','axis').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(4)).select('.domain').remove();
+  const area = d3.area().x(d=>x(d.date)).y0(H-margin.bottom).y1(d=>y(d.posts)).curve(d3.curveMonotoneX);
+  const line = d3.line().x(d=>x(d.date)).y(d=>y(d.posts)).curve(d3.curveMonotoneX);
+  const gaColor = resolveColorToken('--accent');
+  svg.append('path').datum(data).attr('fill', gaColor).attr('opacity',.12).attr('d',area);
+  svg.append('path').datum(data).attr('fill','none').attr('stroke',gaColor).attr('stroke-width',2).attr('d',line);
+  svg.selectAll('circle').data(data).join('circle').attr('cx',d=>x(d.date)).attr('cy',d=>y(d.posts)).attr('r',3)
+    .attr('fill',gaColor)
+    .on('mousemove',(event,d)=>showTooltip(event,d.month,`${integerFormatter.format(d.posts)} posts`))
+    .on('mouseleave',hideTooltip);
+}
+
+// ============================================================
+// TOP THREADS TABLE
+// ============================================================
+function renderTopThreads() {
+  const el = $('#top-threads-chart');
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Thread</th><th>Kind</th><th>Posts</th><th>Participants</th></tr></thead>
+    <tbody>${DATA.topThreads.map(t=>`
+      <tr>
+        <td>${t.title}</td>
+        <td class="table-cell-muted">${t.kind}</td>
+        <td class="table-cell-mono">${t.posts}</td>
+        <td class="table-cell-mono">${t.participants}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+// ============================================================
+// THREAD GAP BARS
+// ============================================================
+function renderThreadGapBars() {
+  const el = $('#thread-gap-bars');
+  const rows = document.createElement('div');
+  rows.className = 'bar-rows';
+  rows.innerHTML = DATA.threadGaps.map(d => `
+      <div class="brow thread-gap-row">
+        <div class="brow-name">${d.quiz}</div>
+        <div class="thread-gap-cell">
+          <div class="thread-gap-label is-poster">Posters (${d.posters}) — ${formatPercent(d.posterPct)}</div>
+          <div class="brow-track"><div class="brow-fill thread-gap-poster-fill" style="width:${d.posterPct}%"></div></div>
+        </div>
+        <div class="thread-gap-cell">
+          <div class="thread-gap-label">Non-posters — ${formatPercent(d.nonposterPct)}</div>
+          <div class="brow-track"><div class="brow-fill thread-gap-muted-fill" style="width:${d.nonposterPct}%"></div></div>
+        </div>
+        <div class="brow-num thread-gap-delta">+${formatPercent(d.gap)}</div>
+      </div>`).join('');
+  el.innerHTML = '';
+  el.appendChild(rows);
+}
+
+// ============================================================
+// DEADLINE BARS
+// ============================================================
+function renderDeadlineBars() {
+  const el = $('#deadline-bars');
+  const gaData = DATA.deadlinePressure.filter(d => d.kind === 'ga');
+  const projectData = DATA.deadlinePressure.filter(d => d.kind === 'project');
+  const colors = ['var(--bad)', 'var(--c-roe)', 'var(--accent)', 'var(--ga)', 'var(--good)'];
+  const deadlineGroup = (title, tipPrefix, rows) => `
+    <div class="deadline-bar-group">
+      <div class="deadline-bar-title">${title}</div>
+      <div class="deadline-stack">
+        ${rows.map((row, index) => `
+          <div
+            class="deadline-segment"
+            style="width:${row.pct}%;background:${resolveColorToken(colors[index])}"
+            data-tip-title="${tipPrefix} · ${escapeAttribute(row.label)}"
+            data-tip-body="${escapeAttribute(`${row.pct}% of final saves<br>${integerFormatter.format(row.count)} saves`)}"
+          >
+            ${row.pct > 8 ? `<span class="deadline-segment-label">${row.label.split(' ')[0]} ${Math.round(row.pct)}%</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+
+  el.innerHTML = `
+    ${deadlineGroup('Graded Assignments — when final saves happen', 'GA', gaData)}
+    ${deadlineGroup('Projects — when final saves happen', 'Project', projectData)}
+    <div class="deadline-legend">
+      ${gaData.map((row, index) => `<span class="deadline-legend-item">
+        <span class="deadline-swatch" style="background:${resolveColorToken(colors[index])}"></span>${row.label}
+      </span>`).join('')}
+    </div>`;
+}
+
+// ============================================================
+// COURSE TEAM
+// ============================================================
+function formatHours(value) {
+  return value < 1 ? `${Math.round(value * 60)} min` : `${decimalFormatter.format(value)} hrs`;
+}
+
+function renderCourseTeam() {
+  const summary = DATA.courseTeam.summary;
+  renderMetricCards('#team-metrics', [
+    { num: formatHours(summary.avgFirstTeamReplyHours), lbl: 'Average first course-team reply', cls: 'bad' },
+    { num: formatHours(summary.medianFirstTeamReplyHours), lbl: 'Median first course-team reply', cls: 'good' },
+    { num: formatHours(summary.medianDirectReplyHours), lbl: 'Median direct reply to a student post', cls: 'ga' },
+    { num: formatPercent(summary.coveragePct), lbl: 'Student-started topics with course support', cls: 'accent' },
+    { num: formatPercent(summary.within24Pct), lbl: 'Covered topics answered within 24 hours', cls: 'good' },
+    { num: integerFormatter.format(summary.supportPosts), lbl: 'Human support posts by team and LA roles', cls: '' }
+  ]);
+
+  $('#team-term-chart').innerHTML = DATA.courseTeam.terms.map(row => `
+    <div class="team-term-row">
+      <div>
+        <div class="team-row-label">${row.label}</div>
+        <div class="team-row-meta">${integerFormatter.format(row.teamPosts)} support posts · ${formatPercent(row.teamShare)} share</div>
+      </div>
+      <div
+        class="team-bar"
+        data-tip-title="${row.label}"
+        data-tip-body="${escapeAttribute(`${integerFormatter.format(row.studentTopics)} student-started topics<br>${formatPercent(row.coverage)} covered by course support<br>${formatPercent(row.within24)} of covered topics within 24 hours`)}"
+      >
+        <div class="team-fill" style="width:${row.coverage}%"></div>
+      </div>
+      <div class="team-row-value">${formatPercent(row.coverage)}<span>${formatHours(row.medianFirstReply)} median</span></div>
+    </div>
+  `).join('');
+
+  $('#team-kind-bars').innerHTML = DATA.courseTeam.kinds.map(row => `
+    <div class="team-kind-row">
+      <div>
+        <div class="team-row-label">${row.kind}</div>
+        <div class="team-row-meta">${integerFormatter.format(row.studentTopics)} topics</div>
+      </div>
+      <div
+        class="team-bar"
+        data-tip-title="${escapeAttribute(row.kind)} support"
+        data-tip-body="${escapeAttribute(`${formatPercent(row.coverage)} coverage<br>${formatHours(row.medianFirstReply)} median first reply<br>${integerFormatter.format(row.uncovered)} topics without course-team reply`)}"
+      >
+        <div class="team-fill is-mixed" style="width:${row.coverage}%"></div>
+      </div>
+      <div class="team-row-value">${formatPercent(row.coverage)}<span>${formatHours(row.medianFirstReply)}</span></div>
+    </div>
+  `).join('');
+
+  $('#team-member-cards').innerHTML = DATA.courseTeam.people.map(person => {
+    const termChips = Object.entries(person.terms).map(([term, count]) => `
+      <span class="term-chip">${term}${person.termRoles?.[term] ? ` · ${person.termRoles[term]}` : ''} · ${integerFormatter.format(count)}</span>
+    `).join('');
+    return `
+      <div
+        class="team-member-card"
+        data-tip-title="${escapeAttribute(person.name)}"
+        data-tip-body="${escapeAttribute(`${integerFormatter.format(person.posts)} support posts<br>${integerFormatter.format(person.firstReplies)} first course-team replies<br>${formatHours(person.avgFirstReply)} average first reply${person.note ? `<br>${person.note}` : ''}`)}"
+      >
+        <div class="team-member-top">
+          <div>
+            <div class="team-member-name">${person.name}</div>
+            <div class="team-member-user">@${person.user}</div>
+          </div>
+          <div class="role-badge">${person.role}</div>
+        </div>
+        <div class="team-member-num">${integerFormatter.format(person.posts)}</div>
+        <div class="team-member-label">support posts across ${Object.keys(person.terms).length} term${Object.keys(person.terms).length > 1 ? 's' : ''}</div>
+        <div class="team-mini-grid">
+          <div class="team-mini">
+            <div class="val">${integerFormatter.format(person.firstReplies)}</div>
+            <div class="lbl">first replies</div>
+          </div>
+          <div class="team-mini">
+            <div class="val">${formatHours(person.medianFirstReply)}</div>
+            <div class="lbl">median first</div>
+          </div>
+          <div class="team-mini">
+            <div class="val">${integerFormatter.format(person.accepted)}</div>
+            <div class="lbl">accepted answers</div>
+          </div>
+          <div class="team-mini">
+            <div class="val">${formatPercent(person.afterHoursShare)}</div>
+            <div class="lbl">after-hours posts</div>
+          </div>
+        </div>
+        <div class="term-chips">${termChips}</div>
+        ${person.note ? `<div class="team-row-meta team-member-note">${person.note}</div>` : ''}
+        ${person.read ? `<div class="team-performance-note"><strong>Short read</strong><br>${person.read}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// TIMING CHAPTER
+// ============================================================
+function renderTimingMetrics() {
+  renderMetricCards('#timing-metrics', DATA.timing.metrics);
+}
+
+function renderTimingImpact() {
+  const rows = DATA.timing.deadlineScoreImpact;
+  $('#timing-impact').innerHTML = `
+    <div class="timing-impact-row">
+      <div class="timing-impact-head">Final save</div>
+      <div class="timing-impact-head">GA share</div>
+      <div class="timing-impact-head align-right">Score</div>
+      <div class="timing-impact-head">Project share</div>
+      <div class="timing-impact-head align-right">Score</div>
+    </div>
+    ${rows.map(row => `
+      <div class="timing-impact-row">
+        <div class="timing-bucket">${row.bucket}</div>
+        <div class="timing-track" data-tip-title="${escapeAttribute(row.bucket)} · GA" data-tip-body="${escapeAttribute(`${row.gaShare}% of final saves<br>Average score: <strong>${formatPercent(row.gaScore)}</strong>`)}">
+          <div class="timing-fill is-ga" style="width:${row.gaShare}%"></div>
+        </div>
+        <div class="timing-num">${formatPercent(row.gaScore)}</div>
+        <div class="timing-track" data-tip-title="${escapeAttribute(row.bucket)} · Projects" data-tip-body="${escapeAttribute(`${row.projectShare}% of final saves<br>Average score: <strong>${formatPercent(row.projectScore)}</strong>`)}">
+          <div class="timing-fill is-project" style="width:${row.projectShare}%"></div>
+        </div>
+        <div class="timing-num">${formatPercent(row.projectScore)}</div>
+      </div>
+    `).join('')}`;
+}
+
+function renderRhythm(container, data) {
+  const totalHours = data.hours.reduce((sum, value) => sum + value, 0);
+  const totalDays = data.days.reduce((sum, value) => sum + value, 0);
+  const maxHour = Math.max(...data.hours);
+  const maxDay = Math.max(...data.days);
+  $(container).innerHTML = `
+    <div class="rhythm-card">
+      <div class="rhythm-title">
+        <div class="rhythm-name">${data.name}</div>
+        <div class="rhythm-total">${integerFormatter.format(totalHours)} events · IST</div>
+      </div>
+      <div class="hour-bars">
+        ${data.hours.map((count, hour) => `
+          <div
+            class="hour-bar"
+            data-tip-title="${String(hour).padStart(2, '0')}:00 IST"
+            data-tip-body="${escapeAttribute(`${integerFormatter.format(count)} ${data.unit}<br>${formatPercent(count * 100 / totalHours)} of all ${data.unit}`)}"
+            aria-label="${String(hour).padStart(2, '0')}:00 IST, ${integerFormatter.format(count)} ${data.unit}"
+            style="height:${Math.max(3, count / maxHour * 100)}%;background:${resolveColorToken(data.color)}"
+          ></div>
+        `).join('')}
+      </div>
+      <div class="hour-axis"><span>00:00</span><span>06:00</span><span>12:00</span><span>23:00</span></div>
+      <div class="day-strip">
+        ${data.days.map((count, day) => `
+          <div
+            class="day-cell"
+            data-tip-title="${DAY_NAMES[day]}"
+            data-tip-body="${escapeAttribute(`${integerFormatter.format(count)} ${data.unit}<br>${formatPercent(count * 100 / totalDays)} of all ${data.unit}`)}"
+            aria-label="${DAY_NAMES[day]}, ${integerFormatter.format(count)} ${data.unit}"
+            style="background:color-mix(in srgb, ${resolveColorToken(data.color)} ${Math.max(8, count / maxDay * 34)}%, rgba(255,255,255,.025))"
+          >
+            <div class="day">${DAY_NAMES[day]}</div>
+            <div class="val">${decimalFormatter.format(count * 100 / totalDays)}%</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderHeatmap(container, data) {
+  const values = data.values;
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const peak = values.reduce((best, count, index) => count > best.count ? { count, index } : best, { count: -1, index: 0 });
+  const peakDay = Math.floor(peak.index / 24);
+  const peakHour = peak.index % 24;
+  const weekendTotal = values.slice(5 * 24).reduce((sum, value) => sum + value, 0);
+  const color = resolveColorToken(data.color);
+  const hourLabel = (hour) => String(hour).padStart(2, '0');
+  const heatStyle = (count) => {
+    const intensity = Math.max(6, Math.sqrt(count / peak.count) * 86).toFixed(1);
+    return `background:color-mix(in srgb, ${color} ${intensity}%, rgba(255,255,255,.035))`;
+  };
+  $(container).innerHTML = `
+    <div class="heatmap-meta">
+      <div class="heatmap-pill">${data.peakLabel || 'Peak'} <strong>${DAY_NAMES[peakDay]} ${hourLabel(peakHour)}:00</strong> · ${integerFormatter.format(peak.count)}</div>
+      <div class="heatmap-pill">Weekend share <strong>${formatPercent(weekendTotal * 100 / total)}</strong></div>
+      <div class="heatmap-pill">Total <strong>${integerFormatter.format(total)}</strong> ${data.unit}</div>
+    </div>
+    <div class="heatmap" role="img" aria-label="${data.name} by day and hour in IST">
+      <div class="heatmap-axis">
+        <div></div>
+        <div class="heatmap-hour-cells">
+          ${HOURS_IN_DAY.map(hour => `<div class="heatmap-hour">${[0, 6, 12, 18, 23].includes(hour) ? hourLabel(hour) : ''}</div>`).join('')}
+        </div>
+      </div>
+      ${DAY_NAMES.map((dayName, day) => `
+        <div class="heatmap-row">
+          <div class="heatmap-day-label">${dayName}</div>
+          <div class="heatmap-cells">
+            ${HOURS_IN_DAY.map(hour => {
+              const index = day * 24 + hour;
+              const count = values[index];
+              const isPeak = index === peak.index ? ' peak' : '';
+              const tipTitle = `${dayName} ${hourLabel(hour)}:00 IST`;
+              const peakNote = data.peakNote ? `<br><strong>${data.peakNote}</strong>` : '<br><strong>Peak activity window</strong>';
+              const tipBody = `${integerFormatter.format(count)} ${data.unit}<br>${formatPercent(count * 100 / total)} of all ${data.unit}${isPeak ? peakNote : ''}`;
+              return `<div class="heat-cell${isPeak}" data-tip-title="${escapeAttribute(tipTitle)}" data-tip-body="${escapeAttribute(tipBody)}" aria-label="${escapeAttribute(`${tipTitle}, ${integerFormatter.format(count)} ${data.unit}`)}" style="${heatStyle(count)}"></div>`;
+            }).join('')}
+          </div>
+        </div>
+      `).join('')}
+      <div class="heatmap-footer">
+        <div class="heatmap-legend">
+          <span>Low</span>
+          ${[10, 28, 46, 64, 82].map(intensity => `<span class="heatmap-swatch" style="background:color-mix(in srgb, ${color} ${intensity}%, rgba(255,255,255,.035))"></span>`).join('')}
+          <span>High</span>
+        </div>
+        <div>IST · day x hour</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTimingChapter() {
+  renderTimingMetrics();
+  renderTimingImpact();
+  $('#reply-metrics').innerHTML = DATA.timing.replyMetrics.map(m => `
+    <div class="reply-metric">
+      <div class="num">${m.num}</div>
+      <div class="lbl">${m.lbl}</div>
+    </div>
+  `).join('');
+  $('#timing-notes').innerHTML = DATA.timing.timingNotes.map(note => `
+    <div class="timing-note">
+      <div class="num">${note.num}</div>
+      <div class="txt">${note.txt}</div>
+    </div>
+  `).join('');
+  renderRhythm('#submission-rhythm', {
+    name: 'Known submissions by hour/day',
+    unit: 'submissions',
+    color: '--ga',
+    hours: DATA.timing.submissionHours,
+    days: DATA.timing.submissionDays
+  });
+  renderRhythm('#forum-rhythm', {
+    name: 'Forum posts by hour/day',
+    unit: 'posts',
+    color: '--accent',
+    hours: DATA.timing.forumHours,
+    days: DATA.timing.forumDays
+  });
+  renderHeatmap('#submission-heatmap', {
+    name: 'Known submissions',
+    unit: 'submissions',
+    color: '--ga',
+    values: DATA.timing.submissionHeatmap,
+    peakLabel: 'ROE spike',
+    peakNote: 'ROE exam window (~45 minutes)'
+  });
+  renderHeatmap('#forum-heatmap', {
+    name: 'Forum posts',
+    unit: 'posts',
+    color: '--accent',
+    values: DATA.timing.forumHeatmap,
+    peakLabel: 'ROE spike',
+    peakNote: 'ROE discussion burst'
+  });
+}
+
+// ============================================================
+// RECOMMENDATIONS
+// ============================================================
+let activeRecommendationOwner = 'all';
+function renderRecommendations() {
+  const owners = ['all', ...new Set(DATA.recommendations.map(r => r.owner))];
+  $('#rec-filter').innerHTML = owners.map(o => `<button class="chip ${activeRecommendationOwner===o?'active':''}" type="button" data-o="${o}">${o==='all'?'All owners':o}</button>`).join('');
+  $$('#rec-filter .chip').forEach(b => b.addEventListener('click', () => { activeRecommendationOwner = b.dataset.o; renderRecommendations(); }));
+  const recs = activeRecommendationOwner === 'all' ? DATA.recommendations : DATA.recommendations.filter(r => r.owner === activeRecommendationOwner);
+  $('#rec-grid').innerHTML = recs.map(r => `
+    <div class="rec-card">
+      <div class="rec-owner">${r.owner} · priority ${r.priority}</div>
+      <div class="rec-title">${r.title}</div>
+      <div class="priority-bar"><div class="priority-fill" style="width:${r.priority}%"></div></div>
+      <div class="rec-evidence"><strong>Evidence:</strong> ${r.evidence}</div>
+      <div class="rec-action">↗ ${r.action}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// METHOD
+// ============================================================
+function renderMethod() {
+  $('#method-rules').innerHTML = DATA.methodology.rules.map(r => `<li>${r}</li>`).join('');
+  $('#method-lims').innerHTML = DATA.methodology.limitations.map(l => `<li>${l}</li>`).join('');
+}
+
+// ============================================================
+// PROGRESS BAR + NAV HIGHLIGHT
+// ============================================================
+function setupScrollProgress() {
+  const prog = $('#progress');
+  const sections = $$('section[id]');
+  window.addEventListener('scroll', () => {
+    const total = document.body.scrollHeight;
+    prog.style.width = (window.scrollY / (total - window.innerHeight) * 100) + '%';
+    // nav highlight
+    let current = '';
+    sections.forEach(s => { if (s.offsetTop <= window.scrollY + 220) current = s.id; });
+    $$('.nav a').forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#'+current); });
+  });
+}
+
+// ============================================================
+// REVEAL ON SCROLL
+// ============================================================
+function setupRevealAnimation() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); } });
+  }, { threshold: 0.05 });
+  $$('.reveal').forEach(el => obs.observe(el));
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+function initializeReport() {
+  renderMetricStrip();
+  renderArchetypeCards();
+  renderCourseTeam();
+  renderTimingChapter();
+  renderRecommendations();
+  renderMethod();
+  setupScrollProgress();
+  setupRevealAnimation();
+  // Charts need layout to be ready
+  requestAnimationFrame(() => {
+    renderGainChart();
+    renderForumCohortChart();
+    renderArchetypeBubble();
+    renderAttemptBars();
+    renderRoeGapChart();
+    renderQuizTimeline();
+    renderForumLine();
+    renderTopThreads();
+    renderThreadGapBars();
+    renderDeadlineBars();
+  });
+  // Re-render on resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      renderGainChart();
+      renderForumCohortChart();
+      renderArchetypeBubble();
+      renderAttemptBars();
+      renderRoeGapChart();
+      renderQuizTimeline();
+      renderForumLine();
+    }, 200);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initializeReport);
+</script>
+</body>
+</html>
