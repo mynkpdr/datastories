@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Were We Measuring? — TDS Term Review, May 2026</title>
+  <meta name="description" content="A forensic review of the May 2026 term of Tools in Data Science: what the graded assignments actually measured, and why one shared URL broke them.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070806'/%3E%3Cline x1='7' y1='11' x2='19' y2='11' stroke='%2338bdf8' stroke-width='3.2' stroke-linecap='round'/%3E%3Cline x1='7' y1='17' x2='24' y2='17' stroke='%2338bdf8' stroke-width='3.2' stroke-linecap='round'/%3E%3Cline x1='7' y1='23' x2='12' y2='23' stroke='%23f87171' stroke-width='3.2' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='23' r='2.6' fill='%23e8a020'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">TDS · 26T2 Review</div>
+    <nav class="nav" aria-label="Report sections">
+      <a href="#overview">Overview</a>
+      <a href="#cohorts">Cohorts</a>
+      <a href="#assessment">Effort</a>
+      <a href="#endpoint">The URL</a>
+      <a href="#questions">Questions</a>
+      <a href="#marks">Marks</a>
+      <a href="#judge">Judge</a>
+      <a href="#instructions">Instructions</a>
+      <a href="#calendar">Calendar</a>
+      <a href="#timing">Timing</a>
+      <a href="#forum">Forum</a>
+      <a href="#team">Team</a>
+      <a href="#actions">Actions</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ======================== HERO ======================== -->
+  <section class="hero" id="hero">
+    <div class="wrap">
+      <div class="hero-eyebrow">TDS Term Review · May 2026 · Internal</div>
+      <h1>What were we<br><em>measuring?</em></h1>
+      <div class="hero-layout reveal">
+        <div class="hero-narrative">
+          <p>Across one term, <strong>1,070 enrolled students</strong> left 57,033 saved attempts and 777,874 per-question scores in the exam portal. Every keystroke that mattered was timestamped. That record answers a question the marks themselves cannot: <strong>did the graded assignments measure capability, or something else?</strong></p>
+          <p>They measured something else. Students who routed one shared URL scored <strong>91.3%</strong> on graded assignments and <strong>50.5%</strong> on the timed exam. Students who never touched it scored <strong>64.2%</strong> and <strong>59.1%</strong>. The assignments did not merely fail to detect the shortcut — they <em>inverted</em>, ranking the students who learned least at the top.</p>
+          <p>This is not a story about cheating. Under the course's stated policy — <em>"Anything is allowed. Help from the Internet, ChatGPT, friends, pets, hacking, … anything"</em> — not one student in this review broke a rule. The policy was not the failure. <strong>The failure was that the assessment offered no question a single shared service could not answer.</strong></p>
+        </div>
+        <div class="hero-stats-box" id="hero-stats">
+          <div class="box-title">At-a-glance · 26T2 · May–Sep 2026</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PULL QUOTE ======================== -->
+  <div class="quote-band">
+    <div class="wrap">
+      <blockquote class="reveal">
+        "Anything is allowed. Help from the Internet, ChatGPT, friends, pets, hacking, … anything. <em>Just get the job done!</em>"
+      </blockquote>
+      <p class="quote-attr reveal">— Instructions shown at the top of every graded assignment, 26T2</p>
+    </div>
+  </div>
+
+  <!-- ======================== OVERVIEW ======================== -->
+  <section id="overview">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 00 · Overview</div>
+        <div>
+          <h2 class="section-h2">The term in numbers.</h2>
+          <div class="section-narrative">
+            <p>Before anything can be fixed, the shape of the term has to be visible. Nine graded assignments, two projects, one timed exam, and 5,305 refused saves. Participation held up better than the room suggested — <strong>632 students still submitted GA8</strong>, 59% of those enrolled — while live-session attendance fell from roughly 150 to zero.</p>
+            <p>Those two facts belong together. Hundreds of students kept submitting assignments while nobody attended the teaching, which is the first clue about what the assignments were actually asking for. The second clue is in the clock: <strong>the median student's work on an assignment fell from 22 hours on GA0 to 20 minutes on GA8.</strong></p>
+          </div>
+        </div>
+      </div>
+      <div class="metric-strip reveal" id="metric-strip"></div>
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Effort per assignment, across the term</div>
+          <div class="panel-sub">Median minutes between a student's first and last accepted save. <strong>GA0 took 22 hours; GA4 took 15.</strong> The GA5 spike is its two deadline extensions stretching the window open, not students working longer — 31% of GA5 saves were refused.</div>
+          <div class="viz chart-sm" id="effort-chart"></div>
+          <div class="panel-source">Query <code>effort</code> · median first-to-last save span, accepted attempts only</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Who opened, who submitted</div>
+          <div class="panel-sub">The access log records every student who opened an assignment page; the submission log records who saved. The gap between the lines is students who looked and left. Participation declines from 78% at GA1 to 59% at GA8 — real, but this is not a cohort that walked away.</div>
+          <div class="viz chart-sm" id="participation-chart"></div>
+          <div class="panel-source">Query <code>participation</code> · <code>/stats</code> access log joined to submissions</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== COHORT MAP ======================== -->
+  <section id="cohorts">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 01 · Cohorts</div>
+        <div>
+          <h2 class="section-h2">Five cohorts.<br>One broken ruler.</h2>
+          <div class="section-narrative">
+            <p>Every student who sat the Remote Online Exam can be placed on a single axis: <strong>how many graded questions they answered by submitting a URL that other students also submitted.</strong> That is an observable fact in the answer text, not an inference about intent.</p>
+            <p>The Remote Online Exam is the control. It ran in a fixed 45-minute window on questions nobody had seen, so a shared service cannot sit it for you. Comparing each cohort's assignment average against its exam average is therefore a direct test of whether those assignment marks meant anything — and the five cohorts answer it in five different ways.</p>
+            <p>Read the cards below as <strong>operational descriptions, not character judgments</strong>. Nobody in any of these bands broke a rule. The differences between them are differences in <em>what the questions allowed</em>, and each band needs a different fix.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-title">The ruler stretches as you go down</div>
+        <div class="panel-sub">One row per cohort, ordered by how much they used a shared endpoint. Each row shows the same students measured twice — <strong>pale dot = the timed exam, solid dot = the graded assignments</strong> — and the bar between them is the disagreement. Read top to bottom: the assignment dot slides right, the exam dot slides <em>left</em>, and the bar between them stretches from 5 points to 41.</div>
+        <div class="viz" id="cohort-dumbbell"></div>
+        <div class="panel-source">Query <code>inversion</code> · 771 students with both an assignment average and an ROE score</div>
+      </div>
+
+      <div class="archetype-cards reveal mt32" id="cohort-cards"></div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">Every student, one dot</div>
+        <div class="panel-sub">The cohort averages hide the shape. Plotted individually, the students who used a shared endpoint pack against the right-hand edge — near-perfect assignment marks — and spread freely down the exam axis. <strong>The dotted diagonal is where a student's two scores would be equal</strong>: on it, the assignments predicted the exam. Points far below it are students the assignments over-rated, and the orange cloud lives there.</div>
+        <div class="viz chart-lg" id="inversion-scatter"></div>
+        <div class="panel-source">Query <code>inversion_scatter</code> · one point per student</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== ASSESSMENT ======================== -->
+  <section id="assessment">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 02 · Assessment</div>
+        <div>
+          <h2 class="section-h2">Twenty-two hours became twenty minutes.</h2>
+          <div class="section-narrative">
+            <p>GA0 is what this course looks like when nobody has the answers yet: <strong>22 hours of work, 7% on the first attempt, 63% by the end</strong>. Students iterating, failing, improving. That is a functioning assignment, and it existed in week one — the course was capable of producing one.</p>
+            <p>By GA8 the median student finished in twenty minutes, scored <strong>74.6% on their very first save</strong>, and a quarter of the cohort cleared 95% before iterating once. There was nothing left to iterate on. They arrived with the answers.</p>
+            <p>This did not start in May. January 2026 decayed too — but May decayed <strong>from a lower start and faster</strong>, hitting a fifteen-minute median by GA4, a level the previous term did not reach until GA5. Whatever was spreading, it spread faster the second time, because it did not have to be built again.</p>
+            <p>Set against the finalised marks, one component stands apart. The assignments settle between 66% and 92%, both projects land in the sixties and eighties — and <strong>the ROE alone sits at 50.3%.</strong> It is the only component where a shared endpoint could not answer for anyone.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="assessment-metrics"></div>
+
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">The collapse, from four angles</div>
+          <div class="panel-sub">Median score on the first save, median best score, the share clearing 95% on their first attempt, and the share who saved exactly once. All four say the same thing in different units.</div>
+          <div class="viz chart-sm" id="effort-arc-chart"></div>
+          <div class="panel-source">Query <code>effort</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Two terms, same assignments</div>
+          <div class="panel-sub">Median minutes of work per assignment, January 2026 against May 2026. Both terms decay. May starts lower and falls faster — the decay is structural, not a one-term accident.</div>
+          <div class="viz chart-sm" id="two-terms-chart"></div>
+          <div class="panel-source">Query <code>effort_two_terms</code> · comparable GAs only</div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">Component timeline — the whole term</div>
+        <div class="panel-sub">Each solid dot is one component's <strong>finalised</strong> average, positioned by when its window opened and sized by how many students submitted. Where offline marking moved the number, a hollow dot shows what the portal displayed at submission instead — <strong>Project 2 was 19.9% on the portal and 87.5% once evaluated.</strong> The bootcamp is drawn hollow — it carries no finalised mark.</div>
+        <div class="viz chart-md" id="component-timeline"></div>
+        <div class="panel-source">Query <code>component_scores</code> + <code>calendar</code> · finalised marks from the marks record, portal scores from the submission log</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== THE ADDRESS ======================== -->
+  <section id="endpoint">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 03 · One Address</div>
+        <div>
+          <h2 class="section-h2">One address,<br>five hundred students.</h2>
+          <div class="section-narrative">
+            <p>Many assignment questions asked students to deploy a working service and submit its URL. The grader would call the URL, check the response, and award marks. <strong>The answer to the question was, literally, an address.</strong></p>
+            <p>The most-submitted address of the term was <code>tds-roe-solver-api-t12026.onrender.com</code>. The <code>t12026</code> is not decoration — that service was built for the <strong>January 2026</strong> Remote Online Exam. It was still running in May. It was still running in August. Over the term, <strong>514 distinct students submitted it as their own deployed service, across 46 questions in 7 of the 9 graded assignments.</strong></p>
+            <p>It was never the only one. And for GA8, somebody deployed one called <code>tds-ga8-<strong>shared</strong>-…</code>. Nobody was hiding this.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="endpoint-metrics"></div>
+
+      <div class="grid-1 reveal">
+        <div class="panel mb16">
+          <div class="panel-title">Addresses submitted as a student's own service</div>
+          <div class="panel-sub">Counted by distinct students who submitted each host. Repositories and file hosts are excluded — these are <em>answers</em>, not references. <strong>The grey bars are loopback addresses no grader could ever reach:</strong> 236 students submitted <code>127.0.0.1:8000</code>, and roughly 240 more submitted other localhost ports.</div>
+          <div id="endpoint-bars"></div>
+          <div class="panel-source">Query <code>endpoints</code> · threshold 20+ distinct students</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Adoption, week by week</div>
+          <div class="panel-sub">The week each student first submitted a shared endpoint. <strong>Adoption stepped rather than crept</strong> — one jump per assignment release — and it never reversed. No student who found the link went back to doing the work.</div>
+          <div class="viz chart-sm" id="adoption-chart"></div>
+          <div class="panel-source">Query <code>endpoint_adoption</code> · week beginning, IST</div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">What the grader did about it</div>
+        <div class="panel-sub panel-sub-spaced">The uncomfortable part is not that students used it. It is that <strong>it worked essentially every time.</strong> On GA8, 99.9% of shared-endpoint answers scored. Across the term, <strong>20,791 of 118,224 assignment marks — 17.6% — were awarded on an answer whose entire content was a URL somebody else had deployed.</strong> The grader was validating the endpoint. It was never validating the student.</div>
+        <div id="diffusion-table"></div>
+        <div class="panel-source">Query <code>endpoint_diffusion</code> · click any column heading to sort</div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">Where the answer wasn't a URL, it was copied verbatim</div>
+        <div class="panel-sub panel-sub-spaced">GA1 had almost no endpoint questions, and almost no endpoint farming. It got copied a different way — byte for byte. Two mechanisms, one cause: <strong>the answer was something that could be passed along intact.</strong></div>
+        <div id="identical-table"></div>
+        <div class="panel-source">Query <code>identical_answers</code> · answers of 20+ characters shared by 25+ distinct students</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== QUESTION DESIGN ======================== -->
+  <section id="questions">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 04 · Questions</div>
+        <div>
+          <h2 class="section-h2">Server-side questions made it worse.</h2>
+          <div class="section-narrative">
+            <p>The design intuition was reasonable: a question whose answer is a live service the grader calls should be harder to fake than a static answer. You have to actually build something. <strong>The data says the opposite, and it says it clearly.</strong></p>
+            <p>The reason is structural. When the answer is a URL, <strong>one working service satisfies every student who holds the link</strong>. Server-side questions concentrate the entire cohort's work into a single artifact that costs nothing to copy. They are the <em>most</em> farmable question type in the set, not the least.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-title">Share of questions server-side vs share farmed</div>
+        <div class="panel-sub"><strong>GA8 was 100% server-side and 80% farmed. GA1 was 20% server-side and 0% farmed.</strong> The relationship runs the wrong way. A question counts as farmed when a shared endpoint was submitted for it and still scored.</div>
+        <div class="viz chart-md" id="resistance-chart"></div>
+        <div class="panel-source">Query <code>question_resistance</code></div>
+      </div>
+
+      <div class="grid-3 reveal mt16">
+        <div class="panel">
+          <div class="panel-title flag-title info-flag"><span class="flag-dot"></span>GA6 was the exception</div>
+          <div class="panel-sub">One shared-endpoint attempt across the whole assignment, scoring zero. The evaluation has to execute <strong>on the student's own machine, against state the student holds</strong>. There is no URL to pass around, because the deliverable is a local run.</div>
+          <div class="feature-stat is-good">10%</div>
+          <div class="feature-stat-label">Of GA6 questions farmed, against GA8's 80%</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title flag-title warn-flag"><span class="flag-dot"></span>Be honest about what that proves</div>
+          <div class="panel-sub">GA6 was not immune by design; it was immune because nobody had automated it yet. But the mechanism is real and repeatable. Every assignment that resisted had the same property: <strong>the answer could not be a pointer.</strong></div>
+          <div class="feature-stat is-accent">46</div>
+          <div class="feature-stat-label">Questions across 7 assignments that one address answered</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title flag-title bad-flag"><span class="flag-dot"></span>And the grader couldn't tell</div>
+          <div class="panel-sub">A validator that fetches a URL and checks the response cannot distinguish the student who built the service from the 513 who were handed the link. The check was never wrong — <strong>it was answering a different question than the one being graded.</strong></div>
+          <div class="feature-stat is-bad">17.6%</div>
+          <div class="feature-stat-label">Of all assignment marks awarded on a shared URL</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== MARKS SHOWN ======================== -->
+  <section id="marks">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 05 · Marks</div>
+        <div>
+          <h2 class="section-h2">The score students saw<br>was not the score they got.</h2>
+          <div class="section-narrative">
+            <p>Project 1 awarded portal marks for an answer being <em>present</em>. The analytical judgment came later, offline. Which means that at the moment a student clicked save, <strong>the portal told them something that was not true.</strong></p>
+            <p>Ninety-nine students in a hundred closed the Project 1 tab having been told they scored 12.5 out of 12.5 on Question 1. Then the offline evaluation ran, weeks later, and took much of it back. What followed was the largest single category of forum traffic in the term.</p>
+            <p>Be precise about what those students were arguing. They were not disputing a hard mark. They were disputing <strong>a mark the system had already promised them.</strong> That argument was unwinnable, and it did lasting damage: it taught the whole cohort that offline evaluation was arbitrary, which then poisoned the reception of Project 2's grader — which did not deserve it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal">
+        <div class="panel">
+          <div class="panel-title">Project 1: students shown full marks at submission</div>
+          <div class="panel-sub">Computed on each student's final accepted attempt. Any question with a high bar here was, at submission time, telling the student they had scored full marks on it.</div>
+          <div id="p1-bars"></div>
+          <div class="panel-source">Query <code>p1_portal_vs_real</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">The gap the portal left open</div>
+          <div class="panel-sub">Hollow is what the portal showed at submission; solid is the mark that stood. <strong>Both projects moved a long way after the student clicked submit</strong> — Project 1 by 20.4 points, Project 2 by 67.6. The difference is disclosure. Project 2 banked <strong>2.5 of 12.5</strong> per question and named the rest pending, so its gap was announced. Project 1's was not, and per question it moved in both directions — which is where the disputes came from, not from the average.</div>
+          <div id="p1-vs-p2-bars"></div>
+          <div class="panel-source">Query <code>component_scores</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== THE JUDGE ======================== -->
+  <section id="judge">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 06 · The Judge</div>
+        <div>
+          <h2 class="section-h2">The judge is better<br>than its reputation.</h2>
+          <div class="section-narrative">
+            <p>The loudest grievance of the term was that offline LLM evaluation is a black box. That is two different complaints, and they deserve different answers.</p>
+            <p><strong>For Project 1 and ROE the complaint is valid.</strong> No rubrics, judge prompts or per-question offline scores survive. A student who believes they were misgraded has nothing to appeal against — and the course team has nothing to defend with. That is not a grading disagreement; it is an absence of record.</p>
+            <p><strong>For Project 2 it is not valid</strong>, and Project 2's grader is the template worth building on. It published the rubric, scored every submission across 126 named dimensions, quoted the student's own text as justification for each score, and gave each student a code to look up their breakdown. It also discriminates — but its two real faults are compression and length-bias, not opacity.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="judge-metrics"></div>
+
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Does effort move the mark?</div>
+          <div class="panel-sub">Students split into five quintiles by how much they wrote across all eight exercises. The judge is not random — the direction is right. But look at the vertical range: <strong>every quintile lands in the 80s, and the whole cohort averages 87.4 out of 100</strong> with a standard deviation of 8.3.</div>
+          <div class="viz chart-sm" id="judge-effort-chart"></div>
+          <div class="panel-source">Query <code>p2_effort_vs_grade</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">A six-level rubric used as a two-level one</div>
+          <div class="panel-sub">Across 5,643 question grades, <strong>88% landed in the top two of six bands</strong> and only 91 fell below "mixed". A judge with one and a half usable bands cannot separate good work from adequate work.</div>
+          <div id="verdict-bars"></div>
+          <div class="panel-source">Query <code>p2_verdicts</code></div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">The length channel</div>
+        <div class="panel-sub">Characters written against the analytical mark, one point per student. <strong>The correlation is r = 0.57.</strong> Some of that is honest — thorough analysis genuinely runs longer. But a 0.57 correlation with <em>raw character count</em> is a channel, and a cohort that found a shared endpoint in week two will find a verbosity channel in a week.</div>
+        <div class="viz chart-md" id="judge-scatter"></div>
+        <div class="panel-source">Query <code>p2_scatter</code> · 710 students</div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">What students actually failed at</div>
+        <div class="panel-sub panel-sub-spaced">All 29,623 rubric-dimension scores, on the rubric's own 0–4 scale, ordered weakest first. Note how little of the scale is used: <strong>every dimension lands between 3.11 and 3.81.</strong> The three strongest are <em>usefulness and clarity</em>, <em>decision/action quality</em> and <em>conclusion fit</em>. The four weakest are <em>causal reasoning</em>, <em>investigative reasoning</em>, <em>calibration against alternatives</em> and <em>disconfirmation</em>. <strong>Students produce a clear, useful, well-fitting answer and cannot show the reasoning that got them there.</strong> That is the gap an agent does not close — an agent will hand you a confident conclusion; it will not tell you which alternative it failed to rule out.</div>
+        <div id="dimension-bars"></div>
+        <div class="panel-source">Query <code>p2_dimensions</code> · dimensions graded 400+ times</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== INSTRUCTIONS ======================== -->
+  <section id="instructions">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 07 · Instructions</div>
+        <div>
+          <h2 class="section-h2">Three hundred and forty-eight<br>spellings of one instruction.</h2>
+          <div class="section-narrative">
+            <p>Project 1 Question 2 required a Google Drive folder, shared with the graders, under a stated name. Both halves of that requirement failed at scale, and the failure was only discovered weeks later when a human went looking.</p>
+            <p>It is tempting to read that as carelessness, and the course team did — these were called silly mistakes, and students were told they should have read the instructions. <strong>Both sides were right, which is why the argument never resolved:</strong> the instruction <em>was</em> clear, and the students genuinely had <em>no way to know they had failed it</em>.</p>
+            <p>Every one of these failures was machine-checkable at submission time. The portal could have called the Drive API, confirmed access, checked the name, and refused the save with a reason. <strong>A rule that 600 people implement 348 different ways is not a discipline problem. It is a missing validator.</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal">
+        <div class="panel">
+          <div class="panel-title">Did the graders get access?</div>
+          <div class="panel-sub"><strong>68 students never successfully shared the folder — and were still inaccessible after a second follow-up request.</strong> They lost the question outright, having submitted work they believed was complete.</div>
+          <div id="drive-bars"></div>
+          <div class="panel-source">Source <code>dumps/q-interview-requirements-audio-pending-access.csv</code>, query <code>drive_access</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">And what did they call the folder?</div>
+          <div class="panel-sub">The five most common names, out of <strong>348 distinct names used by 600 students</strong>. Even the most popular spelling was used by fewer than one student in twenty — against a single stated convention.</div>
+          <div id="folder-bars"></div>
+          <div class="panel-source">Query <code>folder_names</code>, <code>folder_name_count</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== CALENDAR ======================== -->
+  <section id="calendar">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 08 · Calendar</div>
+        <div>
+          <h2 class="section-h2">The course kept<br>colliding with itself.</h2>
+          <div class="section-narrative">
+            <p>Every exam config carries an open date. The portal records the first save that actually succeeded. The gap between the two is how late the assignment really shipped — and <strong>GA1 shipped 28 days late.</strong></p>
+            <p>The churn did not stop at release: the GA3 and GA5 question sets took ten commits each <em>after</em> their nominal open date, while students were working on them. The content repo tells the same story — 44 commits during the term, many of them pure date corrections, and <strong>Week 8 teaching content landed on 26 August, eight days after GA8 was released.</strong> The assessment shipped before the material it assessed.</p>
+            <p>Slippage has to be absorbed somewhere, and here it was absorbed by compressing the end of the term: GA6 open to 9 August, GA5 extended to 10 August, ROE sitting on 2 August. Three assessments and an exam inside a fortnight.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal">
+        <div class="panel">
+          <div class="panel-title">Days late, per component</div>
+          <div class="panel-sub">Between the open date compiled into the exam config and the first save the portal actually accepted.</div>
+          <div id="slip-bars"></div>
+          <div class="panel-source">Query <code>calendar</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Share of saves the portal refused</div>
+          <div class="panel-sub"><strong>GA5 and GA3 alone account for 3,116 refused saves</strong> — students who did the work and were told no, and who then could not tell whether the fault was theirs or the course's.</div>
+          <div id="rejection-bars"></div>
+          <div class="panel-source">Query <code>rejections</code></div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">GA5, day by day</div>
+        <div class="panel-sub">On 26 July — GA5's original deadline — the portal took <strong>2,442 save attempts and refused 906 of them.</strong> Students had been raising it on the forum for five days ("GA5 Query: Guidance Request for Q9, Q10, and Q11 (Repeated Grader Errors)", 35 posts). The deadline was then extended twice, to 10 August.</div>
+        <div class="viz chart-md" id="ga5-chart"></div>
+        <div class="panel-source">Query <code>ga5_daily</code></div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">The full calendar</div>
+        <div class="panel-sub panel-sub-spaced">Config open date, first real save, deadline, commits to the question set after release, and refused saves. Click any column heading to sort.</div>
+        <div id="calendar-table"></div>
+        <div class="panel-source">Query <code>calendar</code> · commit counts from the exam repo's git history</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== TIMING ======================== -->
+  <section id="timing">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 09 · Timing</div>
+        <div>
+          <h2 class="section-h2">When students work.<br>When students ask.</h2>
+          <div class="section-narrative">
+            <p>The timing data turns the review into an operations question. Roughly a third of every component's saves land <strong>between 22:00 and 06:00 IST</strong>, and close to half of Project 1's landed in the final twenty-four hours. These are working students fitting a degree around a job.</p>
+            <p>Any support model built around daytime availability is serving a different course than the one being taken. The forum follows the same rhythm, which means pinned answers, validator reliability and TA coverage matter most at predictable moments — and those moments are nights and weekends.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="timing-metrics"></div>
+
+      <div class="timing-board reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Final-save timing vs score</div>
+          <div class="panel-sub">Each student's last accepted save, grouped by how far it landed from the deadline. Graded assignments and projects diverge sharply here: for GAs early finishers score higher, while <strong>projects show the opposite</strong> — because the project's portal score was participation marks, which reward submitting at all.</div>
+          <div id="timing-impact"></div>
+          <div class="panel-source">Query <code>deadline_impact</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Deadline pressure, by component</div>
+          <div class="panel-sub">Where each component's final saves landed. GA5's flat profile is its twice-extended deadline, not calm working.</div>
+          <div id="deadline-bars"></div>
+          <div class="timing-note-list" id="timing-notes"></div>
+          <div class="panel-source">Query <code>deadline_impact</code>, <code>timing_deadline</code></div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Submission rhythm by hour and day</div>
+          <div class="panel-sub">Every accepted save in the term. The load climbs steadily through the day and peaks at 23:00, and <strong>Sunday alone carries 32.7% of it</strong> against Monday's 7.6%. Operationally predictable — and nowhere near office hours.</div>
+          <div id="submission-rhythm"></div>
+          <div class="panel-source">Query <code>submission_rhythm</code> · times IST</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Forum rhythm by hour and day</div>
+          <div class="panel-sub">Forum demand is less spiky than submissions but follows the same cycle. Students ask for help at exactly the hours when many are also submitting.</div>
+          <div id="forum-rhythm"></div>
+          <div class="panel-source">Query <code>forum_rhythm</code> · times IST</div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal mt16 heatmap-grid">
+        <div class="panel heatmap-panel">
+          <div class="panel-title">Submission pressure heatmap</div>
+          <div class="panel-sub">The full day-by-hour matrix separates two patterns. The single brightest cell is <strong>Sunday 13:00 — ROE's 45-minute exam window</strong>, which alone drew 3,976 saves. Everything else is ordinary deadline pressure, and <strong>48.9% of it lands at the weekend.</strong></div>
+          <div id="submission-heatmap"></div>
+          <div class="panel-source">Query <code>submission_heatmap</code></div>
+        </div>
+        <div class="panel heatmap-panel">
+          <div class="panel-title">Forum demand heatmap</div>
+          <div class="panel-sub">Forum posts rise in the same windows as submissions, so support coverage has to account for deadline bursts rather than a flat weekly rota.</div>
+          <div id="forum-heatmap"></div>
+          <div class="panel-source">Query <code>forum_heatmap</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== FORUM ======================== -->
+  <section id="forum">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 10 · Forum</div>
+        <div>
+          <h2 class="section-h2">A grievance desk wearing<br>a classroom's clothes.</h2>
+          <div class="section-narrative">
+            <p>281 threads were created in the course category during the term, carrying 1,816 posts. Labelled by what each was actually <em>for</em>, from its own text: <strong>88.3% administrative friction — marks, bugs, deadlines, schedules, rules. 6.0% about learning the material.</strong></p>
+            <p>One hundred and twenty-seven marks disputes. Forty-eight portal bugs. And <strong>four threads in the entire term</strong> asking for help with the actual task. It got worse as the term went on, from 55% marks-and-bugs threads in May to 72% in August.</p>
+            <p>Here is the counter-intuitive part. The obvious diagnosis is that support was slow, so students got angry. <strong>That is not what happened.</strong> Median time to a first reply was two to three hours, every single month, and only 17 of 281 threads went unanswered. By any normal measure this forum was well served. It was simply serving the wrong function — students were not asking how to do the work, they were contesting the score.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="forum-metrics"></div>
+
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">What the forum was for</div>
+          <div class="panel-sub">All 281 threads grouped into three families. Labels come from an embedding nearest-anchor classifier; the fine-grained labels are noisy but the <strong>family split is robust</strong>, because low-confidence confusions fall almost entirely within the friction family.</div>
+          <div id="family-bars"></div>
+          <div class="panel-source">Query <code>forum_family</code> · method in <code>classify_forum.py</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Threads by intent</div>
+          <div class="panel-sub">The fine-grained view. Marks disputes outnumber requests for technical help by <strong>thirty-two to one</strong>.</div>
+          <div id="intent-bars"></div>
+          <div class="panel-source">Query <code>forum_intent</code></div>
+        </div>
+      </div>
+
+      <div class="grid-2 reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Friction as a share of the forum</div>
+          <div class="panel-sub">Marks-dispute and portal-bug threads as a percentage of all threads created that month. September is only four threads — ignore it.</div>
+          <div class="viz chart-sm" id="friction-chart"></div>
+          <div class="panel-source">Query <code>forum_friction_trend</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Response was never the problem</div>
+          <div class="panel-sub">Median hours to a first reply, and threads that never received one. Fast, every month. <strong>The forum's problem was its workload, not its latency.</strong></div>
+          <div class="viz chart-sm" id="latency-chart"></div>
+          <div class="panel-source">Query <code>forum_monthly</code></div>
+        </div>
+      </div>
+
+      <div class="panel reveal mt16">
+        <div class="panel-title">The most-viewed threads of the term</div>
+        <div class="panel-sub panel-sub-spaced">Ranked by views, with the intent label attached. Read the titles in order — they are the term's story told by the people living it. Click any column heading to sort; thread titles link to Discourse.</div>
+        <div id="topics-table"></div>
+        <div class="panel-source">Query <code>forum_top_topics</code></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== RESPONDERS ======================== -->
+  <section id="team">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Chapter 11 · Responders</div>
+        <div>
+          <h2 class="section-h2">Students talked.<br>The team resolved.</h2>
+          <div class="section-narrative">
+            <p>The May 2026 course team was seven people — the professor, two instructors and four teaching assistants — plus five Learning Assistants working against a separate <code>exam-dev</code> deployment. Two <strong>ex-TAs</strong> from the January 2026 term also kept answering. This chapter takes that roster and asks the forum what each of them did with it.</p>
+            <p>The headline is a genuine split. The team wrote only <strong>26.4% of the term's posts</strong>, so on volume the forum is a peer network. But they wrote <strong>158 of its 184 accepted answers — 86%</strong>. Students do the talking; the team does the resolving. Both of those are worth knowing, and the second one is usually missed.</p>
+            <p>The load inside the team is very unevenly spread: <strong>two teaching assistants account for 297 of the 479 team posts</strong>, and one of them holds 93 of the 158 accepted answers. The two roster accounts that never posted at all are both Learning Assistants, covered separately below.</p>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-strip reveal" id="team-metrics"></div>
+
+      <div class="team-board reveal mt16">
+        <div class="panel">
+          <div class="panel-title">Month-by-month coverage</div>
+          <div class="panel-sub">The share of each month's threads whose <em>first</em> reply came from someone on the roster. The rest were answered by other students first — which is not a failure, but it does mean the first voice a student heard usually could not change their mark.</div>
+          <div class="team-term-list" id="coverage-rows"></div>
+          <div class="panel-source">Query <code>coverage</code></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Team against everyone else</div>
+          <div class="panel-sub">Every post in the term, split by whether its author is on the course-team roster. The peer network is doing most of the talking.</div>
+          <div class="team-kind-list" id="responder-rows"></div>
+          <div class="panel-source">Query <code>responders</code></div>
+        </div>
+      </div>
+
+      <div class="team-member-head reveal">
+        <div class="team-member-title">The bench, in detail</div>
+        <div class="team-member-sub">The professor, both instructors, the four TAs and the two ex-TAs, ordered by posts. The <strong>Ex-TA</strong> cards were appointed in January 2026 and kept answering with no assigned load. Learning Assistants are counted separately below — they worked on a different deployment.</div>
+      </div>
+      <div class="team-member-grid reveal" id="responder-cards"></div>
+
+      <div class="grid-3 reveal mt16">
+        <div class="panel">
+          <div class="team-note-num">151</div>
+          <div class="panel-title">Posts from the two ex-TAs</div>
+          <div class="panel-sub">Two of the four heaviest responders are <strong>ex-TAs</strong>, appointed in January 2026 and carrying no load this term. They answered anyway — 151 posts and 22 accepted answers, close to a third of everything the team contributed. That is a pipeline worth formalising rather than depending on informally.</div>
+        </div>
+        <div class="panel">
+          <div class="team-note-num is-accent">2</div>
+          <div class="panel-title">LA posts on the forum</div>
+          <div class="panel-sub">The five LAs worked against a separate <code>exam-dev</code> deployment rather than production, so their bug-finding leaves no trace in this dataset. On the forum, one of them posted twice and the other four never posted. Whatever the programme achieved, <strong>it achieved it invisibly</strong> — which is itself the problem: there is no record to review, credit or improve.</div>
+        </div>
+        <div class="panel">
+          <div class="team-note-num is-bad" id="instructor-posts">2</div>
+          <div class="panel-title">Posts from the two instructors</div>
+          <div class="panel-sub">Both instructors posted <strong>once each</strong> across the whole term, in two different threads. The forum's 127 marks disputes are the one category a classmate cannot settle — and an instructor appeared in <strong>one</strong> of them. The teaching assistants absorbed the rest, without the standing to close an appeal.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== ACTIONS ======================== -->
+  <section id="actions">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Conclusion · Causes</div>
+        <div>
+          <h2 class="section-h2">Five causes.<br>One test.</h2>
+          <div class="section-narrative">
+            <p>Ordered by how much of the damage each accounts for, and paired with the change the data supports. Every one is actionable with infrastructure that already exists.</p>
+            <p>Underneath all five is a single design target, and it is falsifiable: <strong>every graded component should rank students in roughly the same order as a timed, unseen-question exam does.</strong> Where it doesn't, the component is measuring access, not capability. That can be checked in week one rather than in September.</p>
+          </div>
+        </div>
+      </div>
+      <div class="chips reveal" id="rec-filter"></div>
+      <div class="rec-grid reveal" id="rec-grid"></div>
+
+      <div class="panel reveal mt32">
+        <div class="panel-title">And what did not cause it</div>
+        <div class="panel-sub panel-sub-spaced">Worth stating plainly, because these are the easy explanations and the data does not support any of them.</div>
+        <div id="not-causes"></div>
+        <div class="panel-source">ROE deserves the last word: 787 students, 54.6% average, the only component of the term that produced a usable spread. It was the most complained-about component and the only one that measured anything.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== METHOD ======================== -->
+  <section class="method-section" id="method">
+    <div class="wrap">
+      <div class="section-header reveal">
+        <div class="section-kicker">Appendix · Method</div>
+        <div>
+          <h2 class="section-h2">How to read this data.</h2>
+          <div class="section-narrative">
+            <p>Everything here is <strong>descriptive</strong>. Where a relationship is causal the text says so and gives the mechanism; where it is only an association, it is labelled as one. Nothing in this review identifies a student as having broken a rule, because under the term's stated policy none of them did.</p>
+            <p>The whole document is reproducible. Raw data is pulled by <code>collect.py</code>, normalised by <code>build.py</code> into a DuckDB database, and queried by <code>export_story.py</code> — one named query per figure. This page computes no statistics of its own; every panel names the query behind it. A full rebuild from raw takes under a minute.</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2 reveal">
+        <div class="panel">
+          <div class="panel-title">Measurement rules</div>
+          <ul class="method-list" id="method-rules"></ul>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Known limitations</div>
+          <ul class="method-list" id="method-lims"></ul>
+        </div>
+      </div>
+      <div class="panel reveal mt16">
+        <div class="panel-title">Two terms, as collected</div>
+        <div class="panel-sub panel-sub-spaced">The comparison term is January 2026 (26T1), pulled with the same code path.</div>
+        <div id="terms-table"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-note">
+        TDS Term Review · 26T2 · Snapshot 2026-09-07 · 57,033 submissions · 777,874 question scores · 1,070 enrolled students<br>
+        End Term excluded — not yet held. Nothing here is a final grade outcome.
+      </div>
+      <div class="footer-note">
+        Reproducible from <code>review-2026-05/</code><br>
+        Data: exam platform + Discourse + Project 2 grader
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="tip" id="tooltip">
+  <div class="tip-title" id="tip-title"></div>
+  <div class="tip-body" id="tip-body"></div>
+</div>
+
+<!-- story.json.js is generated by export_story.py and assigns window.STORY.
+     A plain assignment rather than fetch(), so the page also works opened from disk. -->
+<script src="story.json.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
